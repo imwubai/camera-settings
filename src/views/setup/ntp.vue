@@ -1,15 +1,23 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" label-width="160px">
-      <el-form-item label="当前NTP服务器地址为">210.1.2.3</el-form-item>
-      <el-form-item label="获取时间为">2020-09-06 18:45:13</el-form-item>
-      <el-form-item label="请设置NTP服务器地址">
-        <el-input v-model="form.ntp" maxlength="50" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">保存</el-button>
-      </el-form-item>
-    </el-form>
+    <el-row>
+      <el-col :span="8">
+        <el-form ref="form" :model="form" label-width="160px">
+          <el-form-item label="当前NTP服务器地址为">
+            <el-input v-model="form.ntp" disabled />
+          </el-form-item>
+          <el-form-item label="获取时间为">
+            <el-input v-model="form.ntp" disabled />
+          </el-form-item>
+          <el-form-item label="请设置NTP服务器地址">
+            <el-input v-model="form.ntp" maxlength="50" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit">保存</el-button>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -25,7 +33,6 @@
 // }).then((res) => {
 //   console.log(res)
 // })
-
 
 export default {
   data() {
@@ -53,6 +60,6 @@ export default {
 
 <style scoped>
 .el-form-item {
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 }
 </style>

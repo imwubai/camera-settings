@@ -22,7 +22,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">保存</el-button>
+            <el-button type="primary" :loading="saveLoading" @click="onSubmit">保存</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -46,6 +46,7 @@
 export default {
   data() {
     return {
+      saveLoading: false,
       form: {
         radio: '1',
         ip: '',
@@ -64,6 +65,7 @@ export default {
     },
     onSubmit() {
       console.log(this.form.radio)
+      this.saveLoading = true
       if (this.form.radio === '1') {
         this.$refs.form.validate(valid => {
           console.log(valid)

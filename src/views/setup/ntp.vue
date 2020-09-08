@@ -13,7 +13,7 @@
             <el-input v-model="form.ntp" maxlength="50" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">保存</el-button>
+            <el-button type="primary" :loading="saveLoading" @click="onSubmit">保存</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -37,6 +37,7 @@
 export default {
   data() {
     return {
+      saveLoading: false,
       form: {
         ntp: ''
       }
@@ -49,6 +50,7 @@ export default {
   methods: {
     onSubmit() {
       console.log(this.form.ntp)
+      this.saveLoading = true
       this.$message({
         message: '恭喜你，这是一条成功消息',
         type: 'success'

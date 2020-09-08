@@ -113,6 +113,19 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/changepw',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'changepw',
+        component: () => import('@/views/changepw/index'),
+        meta: { title: '修改密码' }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

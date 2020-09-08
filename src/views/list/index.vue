@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div>
-      <el-checkbox v-model="checked1" label="启用自动刷新" border />
+      <el-checkbox v-model="autoRefresh" label="启用自动刷新" border @change="autoRefreshChange" />
     </div>
     <el-table
       v-loading="listLoading"
@@ -12,19 +12,47 @@
       highlight-current-row
     >
       <el-table-column
-        prop="date"
-        label="日期"
-        width="180"
+        prop="index"
+        label="序号"
+        width="80"
       />
       <el-table-column
-        prop="name"
-        label="姓名"
+        prop="name1"
+        label="摄像机编号"
         width="180"
       />
       <el-table-column
         prop="address"
-        label="地址"
+        label="违法行为"
+        width="180"
       />
+      <el-table-column
+        prop="address"
+        label="违法地点"
+      />
+      <el-table-column
+        prop="address3"
+        label="采集时间"
+        width="180"
+      />
+      <el-table-column
+        prop="address12"
+        label="大场景"
+        width="150"
+      >
+        <template slot-scope="scope">
+          <el-button type="text" size="medium" @click="viewImage(scope.row, 'big')">查看</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="address1"
+        label="小场景"
+        width="150"
+      >
+        <template slot-scope="scope">
+          <el-button type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
       class="pagination"
@@ -32,12 +60,24 @@
       layout="prev, pager, next"
       :page-size="10"
       :total="100"
+      :current-page.sync="pageCurrent"
+      @current-change="handleCurrentChange"
     />
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="50%"
+    >
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-// import { getList } from '@/api/table'
+import request from '@/utils/request'
 
 export default {
   filters: {
@@ -52,14 +92,34 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
+      pageCurrent: 1,
       list: null,
       listLoading: true,
-      checked1: true,
+      autoRefresh: true, // 自动刷新
       tableData: []
     }
   },
+  mounted() {
+    request({
+      url: 'http://192.168.110.65:3080/api/clue/appLetsConfigDubboService/getAppLetsOrg',
+      method: 'post',
+      headers: {
+        sign: 'A04D088972190B1C92B735EC5A6AEF96',
+        source: 'duoyuan_wechat_zhuji'
+      },
+      data: {
+        a: 1
+      }
+    }).then((res) => {
+      console.log(res)
+    }, (e) => {
+      console.log(e)
+    })
+  },
   created() {
     // this.fetchData()
+    // this.autoRefreshChange(true)
     setTimeout(() => {
       this.listLoading = false
       for (let i = 0; i < 100; i++) {
@@ -72,7 +132,26 @@ export default {
     }, 100)
   },
   methods: {
+    autoRefreshChange(checked) {
+      let timer
+      clearInterval(timer)
+      if (checked) {
+        timer = setInterval(() => {
+          this.pageCurrent = 1
+          this.fetchData()
+        }, 3000)
+      }
+    },
+    viewImage(row, type) {
+      console.log(row)
+      console.log(type)
+      this.dialogVisible = true
+    },
+    handleCurrentChange(e) {
+      console.log(e)
+    },
     fetchData() {
+      console.log(1)
       // this.listLoading = true
       // getList().then(response => {
       //   this.list = response.data.items

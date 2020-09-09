@@ -95,6 +95,7 @@ export default {
   },
   mounted() {
     this.fetchData()
+    clearInterval(intervalTimer)
     this.autoRefreshChange(true)
   },
   created() {

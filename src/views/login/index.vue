@@ -1,9 +1,9 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
 
       <div class="title-container">
-        <h3 class="title">登录</h3>
+        <h3 class="title">摄像机设置系统</h3>
       </div>
 
       <el-form-item prop="username">
@@ -17,10 +17,8 @@
           name="username"
           type="text"
           tabindex="1"
-          auto-complete="on"
         />
       </el-form-item>
-
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
@@ -33,22 +31,19 @@
           placeholder="请输入密码"
           name="password"
           tabindex="2"
-          auto-complete="on"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click="handleLogin">登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-// import request from '@/utils/request'
-import axios from 'axios'
+import request from '@/utils/request'
+// import axios from 'axios'
 
 export default {
   name: 'Login',
@@ -101,42 +96,48 @@ export default {
       })
     },
     handleLogin() {
-      const _this = this
-      axios.post('http://192.168.1.68:8080/login', {
-        user_name: this.loginForm.username,
-        password: this.loginForm.password
-      }).then((res) => {
-        // console.log(res.data)
-        // let {token} = res.data
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('username', _this.loginForm.username)
-        _this.$router.push({ path: _this.redirect || '/' })
-      }).catch((a) => {
-        this.$message({
-          message: '登录失败，请检查用户名或密码',
-          type: 'error'
-        })
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          request({
+            url: '/login',
+            data: {
+              user_name: this.loginForm.username,
+              password: this.loginForm.password
+            },
+            errorMsg: '登录失败，请检查用户名或密码',
+            errorCb: () => {
+              this.loading = false
+            }
+          }).then((res) => {
+            this.loading = false
+            console.log(11111)
+            console.log(res)
+            console.log(typeof res)
+            // localStorage.setItem('token', res.data.token)
+            // localStorage.setItem('username', this.loginForm.username)
+            // this.$router.push({ path: this.redirect || '/' })
+          }).catch((e) => {
+            console.log(2222)
+            console.log(e)
+          })
+          // axios.post('http://192.168.1.68:8080/login', {
+          //   user_name: this.loginForm.username,
+          //   password: this.loginForm.password
+          // }).then((res) => {
+          //   // console.log(res.data)
+          //   // let {token} = res.data
+          //   localStorage.setItem('token', res.data.token)
+          //   localStorage.setItem('username', _this.loginForm.username)
+          //   _this.$router.push({ path: _this.redirect || '/' })
+          // }).catch((a) => {
+          //   this.$message({
+          //     message: '登录失败，请检查用户名或密码',
+          //     type: 'error'
+          //   })
+          // })
+        }
       })
-      // this.$refs.loginForm.validate(valid => {
-      //   if (valid) {
-      //     this.loading = true
-      //     console.log(111)
-      //     console.log(this.username)
-      //     request({
-      //       url: '/login',
-      //       method: 'post',
-      //       data: {
-      //         user_name: 'admin',
-      //         password: 'admin'
-      //       }
-      //     }).then((res) => {
-      //       console.log(res)
-      //     })
-      //   } else {
-      //     // console.log('error submit!!')
-      //     return false
-      //   }
-      // })
     }
   }
 }

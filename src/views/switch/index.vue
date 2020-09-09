@@ -28,16 +28,6 @@
 import axios from 'axios'
 // import request from '@/utils/request'
 
-// request({
-//   url: '/vue-element-admin/user/login',
-//   method: 'post',
-//   data: {
-//     a: 1
-//   }
-// }).then((res) => {
-//   console.log(res)
-// })
-
 export default {
   data() {
     return {
@@ -77,8 +67,6 @@ export default {
           message: '设置成功',
           type: 'success'
         })
-        // this.form.big_cam_stat = res.data.big_cam_stat
-        // this.form.middle_cam_stat = res.data.middle_cam_stat
       }).catch((a) => {
         this.saveLoading = false
         this.$message({
@@ -92,7 +80,4 @@ export default {
 </script>
 
 <style scoped>
-.el-form-item {
-  /* margin-bottom: 10px; */
-}
 </style>

@@ -4,21 +4,15 @@
       <el-col :span="8">
         <el-form ref="form" :model="form" label-width="160px">
           <el-form-item label="摄像机1">
-            <el-radio-group v-model="form.radio" size="medium" @change="radioChange">
-              <el-radio label="1" border>启动</el-radio>
-              <el-radio label="2" border>关闭</el-radio>
+            <el-radio-group v-model="form.big_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="摄像机2">
-            <el-radio-group v-model="form.radio" size="medium" @change="radioChange">
-              <el-radio label="1" border>启动</el-radio>
-              <el-radio label="2" border>关闭</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="摄像机3">
-            <el-radio-group v-model="form.radio" size="medium" @change="radioChange">
-              <el-radio label="1" border>启动</el-radio>
-              <el-radio label="2" border>关闭</el-radio>
+            <el-radio-group v-model="form.middle_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item>
@@ -31,6 +25,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 // import request from '@/utils/request'
 
 // request({
@@ -48,38 +43,49 @@ export default {
     return {
       saveLoading: false,
       form: {
-        radio: '1',
-        ip: '',
-        ip1: '',
-        ip2: ''
+        big_cam_stat: '',
+        middle_cam_stat: ''
       }
     }
   },
   mounted: function() {
-    // console.log(this)
-    // this.form.ntp = '12'
+    this.getDefaultData()
   },
   methods: {
+    getDefaultData() {
+      axios.post('http://192.168.1.68:8080/get_sys_stat').then((res) => {
+        this.form.big_cam_stat = res.data.big_cam_stat
+        this.form.middle_cam_stat = res.data.middle_cam_stat
+      }).catch((a) => {
+        this.$message({
+          message: '获取数据异常',
+          type: 'error'
+        })
+      })
+    },
     radioChange(aa) {
       console.log(aa)
     },
     onSubmit() {
-      console.log(this.form.radio)
       this.saveLoading = true
-      if (this.form.radio === '1') {
-        this.$refs.form.validate(valid => {
-          console.log(valid)
-          // if (valid) {
-
-          // }
+      axios.post('http://192.168.1.68:8080/enable_proc', {
+        big_cam: (this.form.big_cam_stat === 'running' ? 1 : 0),
+        middle_cam: (this.form.middle_cam_stat === 'running' ? 1 : 0)
+      }).then((res) => {
+        this.saveLoading = false
+        this.$message({
+          message: '设置成功',
+          type: 'success'
         })
-      } else {
-        console.log('submit')
-      }
-      // this.$message({
-      //   message: '恭喜你，这是一条成功消息',
-      //   type: 'success'
-      // })
+        // this.form.big_cam_stat = res.data.big_cam_stat
+        // this.form.middle_cam_stat = res.data.middle_cam_stat
+      }).catch((a) => {
+        this.saveLoading = false
+        this.$message({
+          message: '获取数据异常',
+          type: 'error'
+        })
+      })
     }
   }
 }

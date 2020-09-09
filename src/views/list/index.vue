@@ -12,31 +12,31 @@
       highlight-current-row
     >
       <el-table-column
-        prop="index"
+        type="index"
         label="序号"
-        width="80"
+        width="50"
       />
       <el-table-column
-        prop="name1"
+        prop="camera_id"
         label="摄像机编号"
         width="180"
       />
       <el-table-column
-        prop="address"
+        prop="isred"
         label="违法行为"
         width="180"
       />
       <el-table-column
-        prop="address"
+        prop="location"
         label="违法地点"
       />
       <el-table-column
-        prop="address3"
+        prop="time"
         label="采集时间"
         width="180"
       />
       <el-table-column
-        prop="address12"
+        prop="filename"
         label="大场景"
         width="150"
       >
@@ -45,7 +45,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="address1"
+        prop="smallvideo"
         label="小场景"
         width="150"
       >
@@ -54,21 +54,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      class="pagination"
-      background
-      layout="prev, pager, next"
-      :page-size="10"
-      :total="100"
-      :current-page.sync="pageCurrent"
-      @current-change="handleCurrentChange"
-    />
     <el-dialog
       title="提示"
       :visible.sync="dialogVisible"
-      width="50%"
+      width="1000px"
     >
-      <span>这是一段信息</span>
+      <img :src="imgSrc" class="dialogimg">
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
@@ -77,7 +68,10 @@
 </template>
 
 <script>
-import request from '@/utils/request'
+import axios from 'axios'
+
+// 定时器
+let intervalTimer
 
 export default {
   filters: {
@@ -92,76 +86,58 @@ export default {
   },
   data() {
     return {
+      imgSrc: '',
       dialogVisible: false,
-      pageCurrent: 1,
-      list: null,
       listLoading: true,
       autoRefresh: true, // 自动刷新
       tableData: []
     }
   },
   mounted() {
-    request({
-      url: 'http://192.168.110.65:3080/api/clue/appLetsConfigDubboService/getAppLetsOrg',
-      method: 'post',
-      headers: {
-        sign: 'A04D088972190B1C92B735EC5A6AEF96',
-        source: 'duoyuan_wechat_zhuji'
-      },
-      data: {
-        a: 1
-      }
-    }).then((res) => {
-      console.log(res)
-    }, (e) => {
-      console.log(e)
-    })
+    this.fetchData()
+    this.autoRefreshChange(true)
   },
   created() {
     // this.fetchData()
-    // this.autoRefreshChange(true)
-    setTimeout(() => {
-      this.listLoading = false
-      for (let i = 0; i < 100; i++) {
-        this.tableData.push({
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        })
-      }
-    }, 100)
   },
   methods: {
     autoRefreshChange(checked) {
-      let timer
-      clearInterval(timer)
+      console.log(checked)
+      clearInterval(intervalTimer)
       if (checked) {
-        timer = setInterval(() => {
-          this.pageCurrent = 1
+        intervalTimer = setInterval(() => {
           this.fetchData()
         }, 3000)
       }
     },
     viewImage(row, type) {
-      console.log(row)
-      console.log(type)
+      if (type === 'big') {
+        this.imgSrc = `http://192.168.1.68:8080/static/${row.filename}`
+      } else {
+        this.imgSrc = `http://192.168.1.68:8080/static/${row.smallvideo}`
+      }
       this.dialogVisible = true
     },
-    handleCurrentChange(e) {
-      console.log(e)
-    },
     fetchData() {
-      console.log(1)
-      // this.listLoading = true
-      // getList().then(response => {
-      //   this.list = response.data.items
-      //   this.listLoading = false
-      // })
+      this.listLoading = false
+      axios.post('http://192.168.1.68:8080/list_pic').then((res) => {
+        this.listLoading = false
+        this.tableData = res.data
+      }).catch((a) => {
+        this.listLoading = false
+        this.$message({
+          message: '获取数据异常',
+          type: 'error'
+        })
+      })
     }
   }
 }
 </script>
 <style scoped>
+.dialogimg {
+  max-width: 960px;
+}
 .pagination {
   margin-top: 20px;
 }

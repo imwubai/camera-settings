@@ -34,7 +34,6 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
@@ -48,7 +47,7 @@
 </template>
 
 <script>
-
+// import request from '@/utils/request'
 import axios from 'axios'
 
 export default {
@@ -70,8 +69,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -102,20 +101,42 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          // console.log('error submit!!')
-          return false
-        }
+      const _this = this
+      axios.post('http://192.168.1.68:8080/login', {
+        user_name: this.loginForm.username,
+        password: this.loginForm.password
+      }).then((res) => {
+        // console.log(res.data)
+        // let {token} = res.data
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('username', _this.loginForm.username)
+        _this.$router.push({ path: _this.redirect || '/' })
+      }).catch((a) => {
+        this.$message({
+          message: '登录失败，请检查用户名或密码',
+          type: 'error'
+        })
       })
+      // this.$refs.loginForm.validate(valid => {
+      //   if (valid) {
+      //     this.loading = true
+      //     console.log(111)
+      //     console.log(this.username)
+      //     request({
+      //       url: '/login',
+      //       method: 'post',
+      //       data: {
+      //         user_name: 'admin',
+      //         password: 'admin'
+      //       }
+      //     }).then((res) => {
+      //       console.log(res)
+      //     })
+      //   } else {
+      //     // console.log('error submit!!')
+      //     return false
+      //   }
+      // })
     }
   }
 }

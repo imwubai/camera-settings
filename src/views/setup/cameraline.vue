@@ -14,7 +14,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="大场景摄像机">
-            <el-button type="primary" plain class="test_btn" @click="onSubmit">设置红灯</el-button>
+            <el-button type="primary" plain class="test_btn" @click="showSetRedLightModal">设置红灯</el-button>
           </el-form-item>
           <el-form-item label="交通灯颜色">
             <el-select v-model="form.select" placeholder="请选择" @change="hahhaha">
@@ -42,6 +42,13 @@
         </el-form>
       </el-col>
     </el-row>
+    <el-dialog class="red-light-dialog" title="设置红灯" :visible.sync="redLightVisible" :destroy-on-close="true" :close-on-click-modal="false" width="1020px">
+      <SetRedLight ref="setRedLightRef" :img-url="imgUrl" />
+      <span slot="footer">
+        <el-button @click="redLightVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveSetRedLight">保 存</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -57,8 +64,12 @@
 // }).then((res) => {
 //   console.log(res)
 // })
+import SetRedLight from '@/components/SetRedLight'
 
 export default {
+  components: {
+    SetRedLight
+  },
   data() {
     return {
       options1: [
@@ -98,7 +109,9 @@ export default {
       form: {
         ntp: '',
         select: '摄像机2'
-      }
+      },
+      imgUrl: '',
+      redLightVisible: false // 设置红灯弹窗visible
     }
   },
   mounted: function() {
@@ -108,6 +121,48 @@ export default {
   methods: {
     hahhaha(aa) {
       // console.log(aa)
+    },
+    showSetRedLightModal() {
+      // 展示设置红灯弹窗
+      this.imgUrl = 'https://w.wallhaven.cc/full/96/wallhaven-967zyk.jpg'
+      this.redLightVisible = true
+    },
+    saveSetRedLight() { // 保存设置的红灯
+      const ref = this.$refs.setRedLightRef
+      const { leftLintPoint, rightLintPoint, stopLintPoint, redPoint } = ref
+      if (Object.keys(leftLintPoint).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '未画左边线'
+        })
+        return
+      }
+      if (Object.keys(rightLintPoint).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '未画右边线'
+        })
+        return
+      }
+      if (Object.keys(stopLintPoint).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '未画停车线'
+        })
+        return
+      }
+      if (Object.keys(redPoint).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '未画红灯位置'
+        })
+        return
+      }
+      this.redLightVisible = false
+      console.log('左边线坐标：', leftLintPoint)
+      console.log('右边线坐标：', rightLintPoint)
+      console.log('停车线坐标：', stopLintPoint)
+      console.log('红灯坐标：', redPoint)
     },
     onSubmit() {
       console.log(this.form.ntp)
@@ -120,8 +175,23 @@ export default {
 }
 </script>
 
-<style scoped>
-.el-form-item {
-  /* margin-bottom: 10px; */
+<style lang="scss">
+.red-light-dialog{
+  .el-dialog{
+    margin-top: 6vh !important;
+    .el-dialog__headerbtn{
+      top: 15px;
+      right: 10px;
+    }
+    .el-dialog__header{
+      padding:  10px;
+    }
+    .el-dialog__body{
+      padding:  0 10px;
+    }
+    .el-dialog__footer{
+      padding:  10px;
+    }
+  }
 }
 </style>

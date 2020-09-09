@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div>
-      <el-checkbox v-model="checked1" label="启用自动刷新" border />
+      <el-checkbox v-model="autoRefresh" label="启用自动刷新" border @change="autoRefreshChange" />
     </div>
     <el-table
       v-loading="listLoading"
@@ -12,32 +12,66 @@
       highlight-current-row
     >
       <el-table-column
-        prop="date"
-        label="日期"
+        type="index"
+        label="序号"
+        width="50"
+      />
+      <el-table-column
+        prop="camera_id"
+        label="摄像机编号"
         width="180"
       />
       <el-table-column
-        prop="name"
-        label="姓名"
+        prop="isred"
+        label="违法行为"
         width="180"
       />
       <el-table-column
-        prop="address"
-        label="地址"
+        prop="location"
+        label="违法地点"
       />
+      <el-table-column
+        prop="time"
+        label="采集时间"
+        width="180"
+      />
+      <el-table-column
+        prop="filename"
+        label="大场景"
+        width="150"
+      >
+        <template slot-scope="scope">
+          <el-button type="text" size="medium" @click="viewImage(scope.row, 'big')">查看</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="smallvideo"
+        label="小场景"
+        width="150"
+      >
+        <template slot-scope="scope">
+          <el-button type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
+        </template>
+      </el-table-column>
     </el-table>
-    <el-pagination
-      class="pagination"
-      background
-      layout="prev, pager, next"
-      :page-size="10"
-      :total="100"
-    />
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="1000px"
+    >
+      <img :src="imgSrc" class="dialogimg">
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-// import { getList } from '@/api/table'
+import axios from 'axios'
+
+// 定时器
+let intervalTimer
 
 export default {
   filters: {
@@ -52,37 +86,59 @@ export default {
   },
   data() {
     return {
-      list: null,
+      imgSrc: '',
+      dialogVisible: false,
       listLoading: true,
-      checked1: true,
+      autoRefresh: true, // 自动刷新
       tableData: []
     }
   },
+  mounted() {
+    this.fetchData()
+    clearInterval(intervalTimer)
+    this.autoRefreshChange(true)
+  },
   created() {
     // this.fetchData()
-    setTimeout(() => {
-      this.listLoading = false
-      for (let i = 0; i < 100; i++) {
-        this.tableData.push({
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        })
-      }
-    }, 100)
   },
   methods: {
+    autoRefreshChange(checked) {
+      console.log(checked)
+      clearInterval(intervalTimer)
+      if (checked) {
+        intervalTimer = setInterval(() => {
+          this.fetchData()
+        }, 3000)
+      }
+    },
+    viewImage(row, type) {
+      if (type === 'big') {
+        this.imgSrc = `http://192.168.1.68:8080/static/${row.filename}`
+      } else {
+        this.imgSrc = `http://192.168.1.68:8080/static/${row.smallvideo}`
+      }
+      this.dialogVisible = true
+    },
     fetchData() {
-      // this.listLoading = true
-      // getList().then(response => {
-      //   this.list = response.data.items
-      //   this.listLoading = false
-      // })
+      this.listLoading = false
+      axios.post('http://192.168.1.68:8080/list_pic').then((res) => {
+        this.listLoading = false
+        this.tableData = res.data
+      }).catch((a) => {
+        this.listLoading = false
+        this.$message({
+          message: '获取数据异常',
+          type: 'error'
+        })
+      })
     }
   }
 }
 </script>
 <style scoped>
+.dialogimg {
+  max-width: 960px;
+}
 .pagination {
   margin-top: 20px;
 }

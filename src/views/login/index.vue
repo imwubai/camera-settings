@@ -1,9 +1,9 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
 
       <div class="title-container">
-        <h3 class="title">登录</h3>
+        <h3 class="title">摄像机设置系统</h3>
       </div>
 
       <el-form-item prop="username">
@@ -17,10 +17,8 @@
           name="username"
           type="text"
           tabindex="1"
-          auto-complete="on"
         />
       </el-form-item>
-
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
@@ -33,44 +31,41 @@
           placeholder="请输入密码"
           name="password"
           tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click="handleLogin">登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import request from '@/utils/request'
+// import axios from 'axios'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+      if (!value) {
+        callback(new Error('用户名不能为空'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('密码不能小于6位'))
+      if (!value) {
+        callback(new Error('密码不能为空'))
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -104,15 +99,43 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+          request({
+            url: '/login',
+            data: {
+              user_name: this.loginForm.username,
+              password: this.loginForm.password
+            },
+            errorMsg: '登录失败，请检查用户名或密码',
+            errorCb: () => {
+              this.loading = false
+            }
+          }).then((res) => {
             this.loading = false
-          }).catch(() => {
-            this.loading = false
+            console.log(11111)
+            console.log(res)
+            console.log(typeof res)
+            // localStorage.setItem('token', res.data.token)
+            // localStorage.setItem('username', this.loginForm.username)
+            // this.$router.push({ path: this.redirect || '/' })
+          }).catch((e) => {
+            console.log(2222)
+            console.log(e)
           })
-        } else {
-          // console.log('error submit!!')
-          return false
+          // axios.post('http://192.168.1.68:8080/login', {
+          //   user_name: this.loginForm.username,
+          //   password: this.loginForm.password
+          // }).then((res) => {
+          //   // console.log(res.data)
+          //   // let {token} = res.data
+          //   localStorage.setItem('token', res.data.token)
+          //   localStorage.setItem('username', _this.loginForm.username)
+          //   _this.$router.push({ path: _this.redirect || '/' })
+          // }).catch((a) => {
+          //   this.$message({
+          //     message: '登录失败，请检查用户名或密码',
+          //     type: 'error'
+          //   })
+          // })
         }
       })
     }

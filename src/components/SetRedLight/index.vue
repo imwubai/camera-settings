@@ -9,33 +9,29 @@
         @click="switchopenDrawRight"
       >画右边线</el-button>
       <el-button size="small" :type="openDrawStop ? 'primary' : ''" @click="switchopenDrawStop">画停车线</el-button>
-      <el-button size="small" type="success" @click="save">设置成功</el-button>
       <el-button size="small" type="danger" @click="reset">清除</el-button>
     </div>
-    <div class="box" :style="{width:`${width}px`,height: `${height}px`}">
-      <div id="box-img">
-        <canvas id="bg-img" :width="width" :height="height" :style="imgStyle" />
-        <canvas id="left-img" :width="width" :height="height" :style="imgStyle" />
-        <canvas id="right-img" :width="width" :height="height" :style="imgStyle" />
-        <canvas id="stop-img" :width="width" :height="height" :style="imgStyle" />
-        <canvas
-          id="red-img"
-          :width="width"
-          :height="height"
-          :style="imgStyle"
-          @mousewheel.stop.prevent="handleMousewheel"
-          @mousedown.stop.prevent="handleMousedown"
-          @mouseup.stop.prevent="handleMouseup"
-          @mousemove.stop.prevent="handleMousemove"
-          @mouseleave.stop.prevent="handleMouseleave"
-        />
-      </div>
+    <div class="box" :style="{width:`${imgInitialWidth}px`,height: `${imgInitialHeight}px`}">
+      <canvas id="bg-img" :width="width" :height="height" />
+      <canvas id="left-img" :width="width" :height="height" />
+      <canvas id="right-img" :width="width" :height="height" />
+      <canvas id="stop-img" :width="width" :height="height" />
+      <canvas
+        id="red-img"
+        :width="width"
+        :height="height"
+        :style="{ cursor: cursorStyleVal }"
+        @mousedown.stop.prevent="handleMousedown"
+        @mouseup.stop.prevent="handleMouseup"
+        @mousemove.stop.prevent="handleMousemove"
+        @mouseleave.stop.prevent="handleMouseleave"
+        @click.stop.prevent="handleSwitchScale"
+      />
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'SetRedLight',
   props: {
@@ -53,40 +49,41 @@ export default {
       rightCtx: null, // 右边线
       stopCtx: null, // 停车线
       redCtx: null, // 红灯
-      width: 1000, // 画布宽度
-      height: 600, // 画布高度
+      width: 0, // 画布宽度
+      height: 0, // 画布高度
+      imgInitialWidth: 1000, // 图片初始宽度
+      imgInitialHeight: 0, // 图片初始高度
       imgOriginWidth: 0, // 图片原始宽度
       imgOriginHeight: 0, // 图片原始高度
       top: 0, // 画布定位 top
       left: 0, // 画布定位 left
       zoomVal: 1, // 画布缩放比例
       enableMouseDown: false, // 鼠标按下状态
-      /** 拖拽、画图起始点X */
-      wheelStartX: 0,
+      /** 画图起始点X */
       leftStartX: 0,
       rightStartX: 0,
       stopStartX: 0,
       redStartX: 0,
-      /** 拖拽、画图起始点Y */
-      wheelStartY: 0,
+      /** 画图起始点Y */
       leftStartY: 0,
       rightStartY: 0,
       stopStartY: 0,
       redStartY: 0,
-      /** 拖拽、画图截止点X */
-      wheelEndX: 0,
+      /** 画图截止点X */
       leftEndX: 0,
       rightEndX: 0,
       stopEndX: 0,
       redEndX: 0,
-      /** 拖拽、画图截止点Y */
-      wheelEndY: 0,
+      /** 画图截止点Y */
       leftEndY: 0,
       rightEndY: 0,
       stopEndY: 0,
       redEndY: 0,
-      wheelX: 0, // 缩放中心点X
-      wheelY: 0, // 缩放中心点Y
+      isDrawLeftInTransform: false, // 是否在放大时绘制左边线
+      isDrawRightInTransform: false, // 是否在放大时绘制右边线
+      isDrawStopInTransform: false, // 是否在放大时绘制停车线
+      isDrawRedInTransform: false, // 是否在放大时绘制红灯
+      isOriginImg: false, // 是否为原图
       openDrawLeft: false, // 开启画左边线
       openDrawRight: false, // 开启画右边线
       openDrawStop: false, // 开启画停车线
@@ -98,13 +95,71 @@ export default {
     }
   },
   computed: {
-    imgStyle() {
-      // 画布样式
-      return {
-        top: `${this.top}px`,
-        left: `${this.left}px`,
-        transform: `scale(${this.zoomVal})`,
-        'transform-origin': `${this.wheelX}px ${this.wheelY}px`
+    cursorStyleVal() {
+      if (
+        this.openDrawLeft ||
+        this.openDrawRight ||
+        this.openDrawStop ||
+        this.openDrawRed
+      ) {
+        return 'crosshair'
+      }
+      if (this.isOriginImg) {
+        return 'zoom-out'
+      }
+      return 'zoom-in'
+    },
+    result() {
+      const { start: leftStart, end: leftEnd } = this.leftLintPoint
+      const { start: rightStart, end: rightEnd } = this.rightLintPoint
+      const { start: stopStart, end: stopEnd } = this.stopLintPoint
+      const { leftTop, rightBottom } = this.redPoint
+      const leftStartCoord = leftStart.split(',')
+      const leftEndCoord = leftEnd.split(',')
+      const rightStartCoord = rightStart.split(',')
+      const rightEndCoord = rightEnd.split(',')
+      const stopStartCoord = stopStart.split(',')
+      const stopEndCoord = stopEnd.split(',')
+      const leftTopCoord = leftTop.split(',')
+      const rightBottomCoord = rightBottom.split(',')
+      if (!this.isOriginImg) {
+        return {
+          left: { // 左边线坐标
+            start: [this.realX(leftStartCoord[0]), this.realY(leftStartCoord[1])],
+            end: [this.realX(leftEndCoord[0]), this.realY(leftEndCoord[1])]
+          },
+          right: { // 右边线坐标
+            start: [this.realX(rightStartCoord[0]), this.realY(rightStartCoord[1])],
+            end: [this.realX(rightEndCoord[0]), this.realY(rightEndCoord[1])]
+          },
+          stop: { // 停车线坐标
+            start: [this.realX(stopStartCoord[0]), this.realY(stopStartCoord[1])],
+            end: [this.realX(stopEndCoord[0]), this.realY(stopEndCoord[1])]
+          },
+          red: { // 红灯坐标
+            leftTop: [this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1])],
+            rightBottom: [this.realX(rightBottomCoord[0]), this.realY(rightBottomCoord[1])]
+          }
+        }
+      } else {
+        return {
+          left: { // 左边线坐标
+            start: leftStartCoord,
+            end: leftEndCoord
+          },
+          right: { // 右边线坐标
+            start: rightStartCoord,
+            end: rightEndCoord
+          },
+          stop: { // 停车线坐标
+            start: stopStartCoord,
+            end: stopEndCoord
+          },
+          red: { // 红灯坐标
+            leftTop: leftTopCoord,
+            rightBottom: rightBottomCoord
+          }
+        }
       }
     }
   },
@@ -115,22 +170,25 @@ export default {
     this.rightCtx = document.getElementById('right-img').getContext('2d')
     this.stopCtx = document.getElementById('stop-img').getContext('2d')
     this.redCtx = document.getElementById('red-img').getContext('2d')
-    const img = new Image()
-    img.src = this.imgUrl
-    img.crossOrigin = 'Anonymous'
-    img.onload = () => {
-      this.height = (this.width / img.width) * img.height
-      this.imgOriginWidth = img.width
-      this.imgOriginHeight = img.height
-      setTimeout(() => {
-        this.bgCtx.drawImage(img, 0, 0, this.width, this.height)
-      }, 1000)
-    }
+    this.initDraw(true)
   },
   methods: {
+    scaleX(currentX) {
+      // X轴计算，防止浮点数影响
+      const proportion = this.imgInitialWidth / this.imgOriginWidth
+      const proportionStr = proportion.toString()
+      let index = 1
+      if (proportionStr.includes('.')) {
+        index = proportionStr.split('.')[1].length + 1
+      }
+      return (
+        (currentX * 10 ** index * (proportion * 10 ** index)) /
+        (10 ** index * 10 ** index)
+      )
+    },
     realX(currentX) {
       // X轴计算，防止浮点数影响
-      const proportion = this.imgOriginWidth / this.width
+      const proportion = this.imgOriginWidth / this.imgInitialWidth
       const proportionStr = proportion.toString()
       let index = 1
       if (proportionStr.includes('.')) {
@@ -138,15 +196,151 @@ export default {
       }
       return (proportion * 10 ** index * currentX) / 10 ** index
     },
+    scaleY(currentY) {
+      // X轴计算，防止浮点数影响
+      const proportion = this.imgInitialHeight / this.imgOriginHeight
+      const proportionStr = proportion.toString()
+      let index = 1
+      if (proportionStr.includes('.')) {
+        index = proportionStr.split('.')[1].length + 1
+      }
+      return (
+        (currentY * 10 ** index * (proportion * 10 ** index)) /
+        (10 ** index * 10 ** index)
+      )
+    },
     realY(currentY) {
       // Y轴计算，防止浮点数影响
-      const proportion = this.imgOriginHeight / this.height
+      const proportion = this.imgOriginHeight / this.imgInitialHeight
       const proportionStr = proportion.toString()
       let index = 1
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
       return (proportion * 10 ** index * currentY) / 10 ** index
+    },
+    initDraw(isInitial) {
+      // 初始绘制
+      const img = new Image()
+      img.src = this.imgUrl
+      img.crossOrigin = 'Anonymous'
+      img.onload = () => {
+        if (this.isOriginImg) {
+          this.width = img.width
+          this.height = img.height
+        } else {
+          const currentHeight = (this.imgInitialWidth / img.width) * img.height
+          this.width = this.imgInitialWidth
+          this.height = currentHeight
+          if (isInitial) {
+            this.imgInitialHeight = currentHeight
+          }
+        }
+        this.imgOriginWidth = img.width
+        this.imgOriginHeight = img.height
+        setTimeout(() => {
+          this.bgCtx.drawImage(img, 0, 0, this.width, this.height)
+          if (Object.keys(this.leftLintPoint).length > 0) {
+            // 绘制已有的左边线
+            const { start, end } = this.leftLintPoint
+            const startCoord = start.split(',')
+            const endCoord = end.split(',')
+            this.drawLine(
+              this.leftCtx,
+              startCoord[0],
+              startCoord[1],
+              endCoord[0],
+              endCoord[1],
+              'Left'
+            )
+          }
+          if (Object.keys(this.rightLintPoint).length > 0) {
+            // 绘制已有的右边线
+            const { start, end } = this.rightLintPoint
+            const startCoord = start.split(',')
+            const endCoord = end.split(',')
+            this.drawLine(
+              this.rightCtx,
+              startCoord[0],
+              startCoord[1],
+              endCoord[0],
+              endCoord[1],
+              'Right')
+          }
+          if (Object.keys(this.stopLintPoint).length > 0) {
+            // 绘制已有的停车线
+            const { start, end } = this.stopLintPoint
+            const startCoord = start.split(',')
+            const endCoord = end.split(',')
+            this.drawLine(
+              this.stopCtx,
+              startCoord[0],
+              startCoord[1],
+              endCoord[0],
+              endCoord[1],
+              'Stop'
+            )
+          }
+          if (Object.keys(this.redPoint).length > 0) {
+            // 绘制已有的红灯
+            const { leftTop, rightTop, leftBottom } = this.redPoint
+            const leftTopCoord = leftTop.split(',')
+            const rightTopCoord = rightTop.split(',')
+            const leftBottomCoord = leftBottom.split(',')
+            const redWidth = rightTopCoord[0] - leftTopCoord[0]
+            const redHeight = leftBottomCoord[1] - leftTopCoord[1]
+            this.redCtx.clearRect(0, 0, this.width, this.height)
+            this.redCtx.strokeStyle = '#f00'
+            this.redCtx.lineWidth = 2
+            this.redCtx.beginPath()
+            if (this.isOriginImg && !this.isDrawRedInTransform) { // 切换成原图，但绘制时为缩略图
+              this.redCtx.moveTo(this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1]))
+              this.redCtx.rect(this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1]), this.realX(redWidth), this.realY(redHeight))
+            } else if (!this.isOriginImg && this.isDrawRedInTransform) { //
+              this.redCtx.moveTo(this.scaleX(leftTopCoord[0]), this.scaleY(leftTopCoord[1]))
+              this.redCtx.rect(this.scaleX(leftTopCoord[0]), this.scaleY(leftTopCoord[1]), this.scaleX(redWidth), this.scaleY(redHeight))
+            } else {
+              this.redCtx.moveTo(leftTopCoord[0], leftTopCoord[1])
+              this.redCtx.rect(leftTopCoord[0], leftTopCoord[1], redWidth, redHeight)
+            }
+            this.redCtx.closePath()
+            this.redCtx.stroke()
+          }
+        }, 0)
+      }
+    },
+    drawLine(ctx, startX, startY, endX, endY, type) {
+      // 画线
+      ctx.clearRect(0, 0, this.width, this.height)
+      ctx.strokeStyle = '#f00'
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      if (this.isOriginImg && !this[`isDraw${type}InTransform`]) { // 切换成原图，但绘制时为缩略图
+        ctx.moveTo(this.realX(startX), this.realY(startY))
+        ctx.lineTo(this.realX(endX), this.realY(endY))
+      } else if (!this.isOriginImg && this[`isDraw${type}InTransform`]) { //
+        ctx.moveTo(this.scaleX(startX), this.scaleY(startY))
+        ctx.lineTo(this.scaleX(endX), this.scaleY(endY))
+      } else {
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
+      }
+      ctx.closePath()
+      ctx.stroke()
+    },
+    handleSwitchScale() {
+      // 切换缩放
+      if (
+        !(
+          this.openDrawLeft ||
+          this.openDrawRight ||
+          this.openDrawStop ||
+          this.openDrawRed
+        )
+      ) {
+        this.isOriginImg = !this.isOriginImg
+        this.initDraw()
+      }
     },
     switchopenDrawLeft() {
       // 开关画左边线
@@ -177,158 +371,93 @@ export default {
       this.openDrawLeft = false
     },
     save() {
-      let allSuccess = true
-      let hasSuccess = false
       // 保存绘制结果
-      if (this.leftStartX || this.leftStartY || this.leftEndX || this.leftEndY) {
+      if (
+        this.leftStartX ||
+        this.leftStartY ||
+        this.leftEndX ||
+        this.leftEndY
+      ) {
         this.leftLintPoint = {
-          start: `${this.realX(this.leftStartX)},${this.realY(this.leftStartY)}`,
-          end: `${this.realX(this.leftEndX)},${this.realY(this.leftEndY)}`
+          start: `${this.leftStartX},${this.leftStartY}`,
+          end: `${this.leftEndX},${this.leftEndY}`
         }
-        hasSuccess = true
-      } else {
-        allSuccess = false
       }
-      if (this.rightStartX || this.rightStartY || this.rightEndX || this.rightEndY) {
+      if (
+        this.rightStartX ||
+        this.rightStartY ||
+        this.rightEndX ||
+        this.rightEndY
+      ) {
         this.rightLintPoint = {
-          start: `${this.realX(this.rightStartX)},${this.realY(
-            this.rightStartY
-          )}`,
-          end: `${this.realX(this.rightEndX)},${this.realY(this.rightEndY)}`
+          start: `${this.rightStartX},${this.rightStartY}`,
+          end: `${this.rightEndX},${this.rightEndY}`
         }
-        hasSuccess = true
-      } else {
-        allSuccess = false
       }
-      if (this.stopStartX || this.stopStartY || this.stopEndX || this.stopEndY) {
+      if (
+        this.stopStartX ||
+        this.stopStartY ||
+        this.stopEndX ||
+        this.stopEndY
+      ) {
         this.stopLintPoint = {
-          start: `${this.realX(this.stopStartX)},${this.realY(this.stopStartY)}`,
-          end: `${this.realX(this.stopEndX)},${this.realY(this.stopEndY)}`
+          start: `${this.stopStartX},${this.stopStartY}`,
+          end: `${this.stopEndX},${this.stopEndY}`
         }
-        hasSuccess = true
-      } else {
-        allSuccess = false
       }
       if (this.redStartX || this.redStartY || this.redEndX || this.redEndY) {
-        if (
-          this.realX(this.redEndX) > this.realX(this.redStartX) &&
-        this.realY(this.redEndY) > this.realY(this.redStartY)
-        ) {
-        // 往右下角拖拉
+        if (this.redEndX > this.redStartX && this.redEndY > this.redStartY) {
+          // 往右下角拖拉
           this.redPoint = {
-            leftTop: `${this.realX(this.redStartX)},${this.realY(
-              this.redStartY
-            )}`,
-            rightTop: `${this.realX(this.redEndX)},${this.realY(this.redStartY)}`,
-            leftBottom: `${this.realX(this.redStartX)},${this.realY(
-              this.redEndY
-            )}`,
-            rightBottom: `${this.realX(this.redEndX)},${this.realY(
-              this.redEndY
-            )}`
+            leftTop: `${this.redStartX},${this.redStartY}`,
+            rightTop: `${this.redEndX},${this.redStartY}`,
+            leftBottom: `${this.redStartX},${this.redEndY}`,
+            rightBottom: `${this.redEndX},${this.redEndY}`
           }
         } else if (
-          this.realX(this.redEndX) > this.realX(this.redStartX) &&
-        this.realY(this.redEndY) < this.realY(this.redStartY)
+          this.redEndX > this.redStartX &&
+          this.redEndY < this.redStartY
         ) {
-        // 往右上角拖拉
+          // 往右上角拖拉
           this.redPoint = {
-            leftTop: `${this.realX(this.redStartX)},${this.realY(this.redEndY)}`,
-            rightTop: `${this.realX(this.redEndX)},${this.realY(this.redEndY)}`,
-            leftBottom: `${this.realX(this.redStartX)},${this.realY(
-              this.redStartY
-            )}`,
-            rightBottom: `${this.realX(this.redEndX)},${this.realY(
-              this.redStartY
-            )}`
+            leftTop: `${this.redStartX},${this.redEndY}`,
+            rightTop: `${this.redEndX},${this.redEndY}`,
+            leftBottom: `${this.redStartX},${this.redStartY}`,
+            rightBottom: `${this.redEndX},${this.redStartY}`
           }
         } else if (
-          this.realX(this.redEndX) < this.realX(this.redStartX) &&
-        this.realY(this.redEndY) < this.realY(this.redStartY)
+          this.redEndX < this.redStartX &&
+          this.redEndY < this.redStartY
         ) {
-        // 往左上角拖拉
+          // 往左上角拖拉
           this.redPoint = {
-            leftTop: `${this.realX(this.redEndX)},${this.realY(this.redEndY)}`,
-            rightTop: `${this.realX(this.redStartX)},${this.realY(this.redEndY)}`,
-            leftBottom: `${this.realX(this.redEndX)},${this.realY(
-              this.redStartY
-            )}`,
-            rightBottom: `${this.realX(this.redStartX)},${this.realY(
-              this.redEndY
-            )}`
+            leftTop: `${this.redEndX},${this.redEndY}`,
+            rightTop: `${this.redStartX},${this.redEndY}`,
+            leftBottom: `${this.redEndX},${this.redStartY}`,
+            rightBottom: `${this.redStartX},${this.redEndY}`
           }
         } else {
-        // 往左下角拖拉
+          // 往左下角拖拉
           this.redPoint = {
-            leftTop: `${this.realX(this.redEndX)},${this.realY(this.redStartY)}`,
-            rightTop: `${this.realX(this.redStartX)},${this.realY(
-              this.redStartY
-            )}`,
-            leftBottom: `${this.realX(this.redEndX)},${this.realY(this.redEndY)}`,
-            rightBottom: `${this.realX(this.redStartX)},${this.realY(
-              this.redEndY
-            )}`
+            leftTop: `${this.redEndX},${this.redStartY}`,
+            rightTop: `${this.redStartX},${this.redStartY}`,
+            leftBottom: `${this.redEndX},${this.redEndY}`,
+            rightBottom: `${this.redStartX},${this.redEndY}`
           }
         }
-        hasSuccess = true
-      } else {
-        allSuccess = false
-      }
-      if (hasSuccess) {
-        this.$message({
-          type: 'success',
-          message: '设置成功'
-        })
-      }
-      if (allSuccess) {
-        this.zoomVal = 1
-        this.top = 0
-        this.left = 0
-        this.wheelX = 0
-        this.wheelY = 0
       }
     },
-    reset() { // 清空画布
+    reset() {
+      // 清空画布
       this.leftCtx.clearRect(0, 0, this.width, this.height)
       this.rightCtx.clearRect(0, 0, this.width, this.height)
       this.stopCtx.clearRect(0, 0, this.width, this.height)
       this.redCtx.clearRect(0, 0, this.width, this.height)
+      this.isOriginImg = false
       this.leftLintPoint = {}
       this.rightLintPoint = {}
       this.stopLintPoint = {}
       this.redPoint = {}
-    },
-    handleMousewheel(e) {
-      // 缩放事件
-      if (
-        !this.openDrawLeft &&
-        !this.openDrawRight &&
-        !this.openDrawStop &&
-        !this.openDrawRed
-      ) {
-        this.wheelX = e.offsetX
-        this.wheelY = e.offsetY
-        const changeZoomVal = e.wheelDelta / 2400
-        const currentZoomVal = this.zoomVal + changeZoomVal
-        this.zoomVal = currentZoomVal < 1 ? 1 : currentZoomVal
-        if (this.zoomVal === 1) {
-          this.left = 0
-          this.top = 0
-        } else if (changeZoomVal < 0) {
-          const changeWidthVal = Math.abs(changeZoomVal) * this.width
-          const changeHeightVal = Math.abs(changeZoomVal) * this.height
-          if (this.left <= 0) {
-            this.left += changeWidthVal
-          } else {
-            this.left -= changeWidthVal
-          }
-          if (this.top <= 0) {
-            this.top += changeHeightVal
-          } else {
-            this.top -= changeHeightVal
-          }
-        }
-      }
     },
     handleMousedown(e) {
       // 鼠标按下
@@ -369,6 +498,7 @@ export default {
         this.wheelEndX = e.offsetX
         this.wheelEndY = e.offsetY
       }
+      this.save()
     },
     handleMouseleave() {
       // 鼠标离开画布
@@ -379,30 +509,40 @@ export default {
       if (this.enableMouseDown) {
         if (this.openDrawLeft || this.openDrawRight || this.openDrawStop) {
           // 画线
-          let ctx = null
           if (this.openDrawLeft) {
-            ctx = this.leftCtx
+            this.isDrawLeftInTransform = this.isOriginImg
+            this.drawLine(
+              this.leftCtx,
+              this.leftStartX,
+              this.leftStartY,
+              e.offsetX,
+              e.offsetY,
+              'Left'
+            )
           } else if (this.openDrawRight) {
-            ctx = this.rightCtx
+            this.isDrawRightInTransform = this.isOriginImg
+            this.drawLine(
+              this.rightCtx,
+              this.rightStartX,
+              this.rightStartY,
+              e.offsetX,
+              e.offsetY,
+              'Right'
+            )
           } else {
-            ctx = this.stopCtx
+            this.isDrawStopInTransform = this.isOriginImg
+            this.drawLine(
+              this.stopCtx,
+              this.stopStartX,
+              this.stopStartY,
+              e.offsetX,
+              e.offsetY,
+              'Stop'
+            )
           }
-          ctx.clearRect(0, 0, this.width, this.height)
-          ctx.strokeStyle = '#f00'
-          ctx.lineWidth = 2
-          ctx.beginPath()
-          if (this.openDrawLeft) {
-            ctx.moveTo(this.leftStartX, this.leftStartY)
-          } else if (this.openDrawRight) {
-            ctx.moveTo(this.rightStartX, this.rightStartY)
-          } else {
-            ctx.moveTo(this.stopStartX, this.stopStartY)
-          }
-          ctx.lineTo(e.offsetX, e.offsetY)
-          ctx.closePath()
-          ctx.stroke()
         } else if (this.openDrawRed) {
           // 画框
+          this.isDrawRedInTransform = this.isOriginImg
           this.redCtx.clearRect(0, 0, this.width, this.height)
           this.redCtx.strokeStyle = '#f00'
           this.redCtx.lineWidth = 2
@@ -430,26 +570,6 @@ export default {
           }
           this.redCtx.closePath()
           this.redCtx.stroke()
-        } else if (this.zoomVal > 1) {
-          // 拖拽
-          const distX = e.offsetX - this.wheelStartX // 移动的位移量X
-          const distY = e.offsetY - this.wheelStartY // 移动的位移量Y
-          const currentLeft = this.left + distX // 移动后的定位left
-          const currentTop = this.top + distY // 移动后的定位top
-          // if (currentLeft >= this.wheelStartX) {
-          //   this.left = this.wheelStartX * this.zoomVal
-          // } else if (currentLeft <= -(this.width - this.wheelStartX)) {
-          //   this.left = -(this.width - this.wheelStartX) * this.zoomVal
-          // } else {
-          this.left = currentLeft
-          // }
-          // if (currentTop >= this.wheelStartY) {
-          //   this.top = this.wheelStartY * this.zoomVal
-          // } else if (currentTop <= -(this.height - this.wheelStartY)) {
-          //   this.top = -(this.height - this.wheelStartY) * this.zoomVal
-          // } else {
-          this.top = currentTop
-          // }
         }
       }
     }
@@ -472,24 +592,16 @@ export default {
     }
   }
   .box {
-    overflow: hidden;
-    #box-img {
-      position: relative;
-      #bg-img {
-        position: absolute;
-      }
-      #left-img {
-        position: absolute;
-      }
-      #right-img {
-        position: absolute;
-      }
-      #stop-img {
-        position: absolute;
-      }
-      #red-img {
-        position: absolute;
-      }
+    position: relative;
+    overflow: auto;
+    #bg-img,
+    #left-img,
+    #right-img,
+    #stop-img,
+    #red-img {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   }
 }

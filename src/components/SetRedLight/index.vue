@@ -105,10 +105,7 @@ export default {
         top: `${this.top}px`,
         left: `${this.left}px`,
         transform: `scale(${this.zoomVal})`,
-        'transform-origin':
-          this.wheelX && this.wheelY
-            ? `${this.wheelX}px ${this.wheelY}px`
-            : 'center'
+        'transform-origin': `${this.wheelX}px ${this.wheelY}px`
       }
     }
   },
@@ -315,23 +312,23 @@ export default {
         const changeZoomVal = e.wheelDelta / 2400
         const currentZoomVal = this.zoomVal + changeZoomVal
         this.zoomVal = currentZoomVal < 1 ? 1 : currentZoomVal
-        // if (this.zoomVal === 1) {
-        //   this.left = 0;
-        //   this.top = 0;
-        // } else if (changeZoomVal < 0) {
-        //   const changeWidthVal = Math.abs(changeZoomVal) * this.width;
-        //   const changeHeightVal = Math.abs(changeZoomVal) * this.height;
-        //   if (this.left <= 0) {
-        //     this.left += changeWidthVal;
-        //   } else {
-        //     this.left -= changeWidthVal;
-        //   }
-        //   if (this.top <= 0) {
-        //     this.top += changeHeightVal;
-        //   } else {
-        //     this.top -= changeHeightVal;
-        //   }
-        // }
+        if (this.zoomVal === 1) {
+          this.left = 0
+          this.top = 0
+        } else if (changeZoomVal < 0) {
+          const changeWidthVal = Math.abs(changeZoomVal) * this.width
+          const changeHeightVal = Math.abs(changeZoomVal) * this.height
+          if (this.left <= 0) {
+            this.left += changeWidthVal
+          } else {
+            this.left -= changeWidthVal
+          }
+          if (this.top <= 0) {
+            this.top += changeHeightVal
+          } else {
+            this.top -= changeHeightVal
+          }
+        }
       }
     },
     handleMousedown(e) {
@@ -439,25 +436,23 @@ export default {
           }
           this.redCtx.closePath()
           this.redCtx.stroke()
-        } else {
+        } else if (this.zoomVal > 1) {
           // 拖拽
           const distX = e.offsetX - this.wheelStartX
           const distY = e.offsetY - this.wheelStartY
           const currentLeft = this.left + distX
           const currentTop = this.top + distY
-          const leftRangeVal = (this.width * (this.zoomVal - 1)) / 2
-          const topRangeVal = (this.height * (this.zoomVal - 1)) / 2
-          if (currentLeft < -leftRangeVal) {
-            this.left = -leftRangeVal
-          } else if (currentLeft > leftRangeVal) {
-            this.left = leftRangeVal
+          if (this.left >= this.wheelStartX) {
+            this.left = this.wheelStartX
+          } else if (this.left <= -(this.width - this.wheelStartX)) {
+            this.left = -(this.width - this.wheelStartX)
           } else {
             this.left = currentLeft
           }
-          if (currentTop < -topRangeVal) {
-            this.top = -topRangeVal
-          } else if (currentTop > topRangeVal) {
-            this.top = topRangeVal
+          if (this.top >= this.wheelStartY) {
+            this.top = this.wheelStartY
+          } else if (this.top <= -(this.height - this.wheelStartY)) {
+            this.top = -(this.height - this.wheelStartY)
           } else {
             this.top = currentTop
           }

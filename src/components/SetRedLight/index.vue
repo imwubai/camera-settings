@@ -432,24 +432,24 @@ export default {
           this.redCtx.stroke()
         } else if (this.zoomVal > 1) {
           // 拖拽
-          const distX = e.offsetX - this.wheelStartX
-          const distY = e.offsetY - this.wheelStartY
-          const currentLeft = this.left + distX
-          const currentTop = this.top + distY
-          if (this.left >= this.wheelStartX) {
-            this.left = this.wheelStartX
-          } else if (this.left <= -(this.width - this.wheelStartX)) {
-            this.left = -(this.width - this.wheelStartX)
-          } else {
-            this.left = currentLeft
-          }
-          if (this.top >= this.wheelStartY) {
-            this.top = this.wheelStartY
-          } else if (this.top <= -(this.height - this.wheelStartY)) {
-            this.top = -(this.height - this.wheelStartY)
-          } else {
-            this.top = currentTop
-          }
+          const distX = e.offsetX - this.wheelStartX // 移动的位移量X
+          const distY = e.offsetY - this.wheelStartY // 移动的位移量Y
+          const currentLeft = this.left + distX // 移动后的定位left
+          const currentTop = this.top + distY // 移动后的定位top
+          // if (currentLeft >= this.wheelStartX) {
+          //   this.left = this.wheelStartX * this.zoomVal
+          // } else if (currentLeft <= -(this.width - this.wheelStartX)) {
+          //   this.left = -(this.width - this.wheelStartX) * this.zoomVal
+          // } else {
+          this.left = currentLeft
+          // }
+          // if (currentTop >= this.wheelStartY) {
+          //   this.top = this.wheelStartY * this.zoomVal
+          // } else if (currentTop <= -(this.height - this.wheelStartY)) {
+          //   this.top = -(this.height - this.wheelStartY) * this.zoomVal
+          // } else {
+          this.top = currentTop
+          // }
         }
       }
     }

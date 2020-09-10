@@ -129,29 +129,29 @@ export default {
     },
     saveSetRedLight() { // 保存设置的红灯
       const ref = this.$refs.setRedLightRef
-      const { leftLintPoint, rightLintPoint, stopLintPoint, redPoint } = ref
-      if (Object.keys(leftLintPoint).length === 0) {
+      const { result: { left, right, stop, red }} = ref
+      if (Object.keys(left).length === 0) {
         this.$message({
           type: 'warning',
           message: '未画左边线'
         })
         return
       }
-      if (Object.keys(rightLintPoint).length === 0) {
+      if (Object.keys(right).length === 0) {
         this.$message({
           type: 'warning',
           message: '未画右边线'
         })
         return
       }
-      if (Object.keys(stopLintPoint).length === 0) {
+      if (Object.keys(stop).length === 0) {
         this.$message({
           type: 'warning',
           message: '未画停车线'
         })
         return
       }
-      if (Object.keys(redPoint).length === 0) {
+      if (Object.keys(red).length === 0) {
         this.$message({
           type: 'warning',
           message: '未画红灯位置'
@@ -159,10 +159,10 @@ export default {
         return
       }
       this.redLightVisible = false
-      console.log('左边线坐标：', leftLintPoint)
-      console.log('右边线坐标：', rightLintPoint)
-      console.log('停车线坐标：', stopLintPoint)
-      console.log('红灯坐标：', redPoint)
+      console.log('左边线坐标：', left)
+      console.log('右边线坐标：', right)
+      console.log('停车线坐标：', stop)
+      console.log('红灯坐标：', red)
     },
     onSubmit() {
       console.log(this.form.ntp)

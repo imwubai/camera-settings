@@ -106,7 +106,7 @@ export default {
               password: this.loginForm.password
             },
             errorMsg: '登录失败，请检查用户名或密码',
-            errorCb: () => {
+            hideLoading: () => {
               this.loading = false
             }
           }).then((res) => {
@@ -117,6 +117,7 @@ export default {
             // localStorage.setItem('token', res.data.token)
             // localStorage.setItem('username', this.loginForm.username)
             // this.$router.push({ path: this.redirect || '/' })
+            // document.querySelector('#nav_username').innerHTML = this.loginForm.username
           }).catch((e) => {
             console.log(2222)
             console.log(e)

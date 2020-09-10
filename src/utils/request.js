@@ -22,8 +22,8 @@ const request = (parameter) => {
     // console.log(typeof response)
     // return response
   }).catch((e) => {
-    const { errorCb, errorMsg } = parameter
-    errorCb && errorCb()
+    const { hideLoading, errorMsg } = parameter
+    hideLoading && hideLoading()
     Message({
       message: errorMsg || '服务器异常',
       type: 'error'

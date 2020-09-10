@@ -27,7 +27,6 @@
           @mousedown.stop.prevent="handleMousedown"
           @mouseup.stop.prevent="handleMouseup"
           @mousemove.stop.prevent="handleMousemove"
-          @mouseover.stop.prevent="handleMouseover"
           @mouseleave.stop.prevent="handleMouseleave"
         />
       </div>
@@ -370,11 +369,6 @@ export default {
         this.wheelEndX = e.offsetX
         this.wheelEndY = e.offsetY
       }
-    },
-    handleMouseover(e) {
-      // 鼠标炫悬浮
-      this.wheelX = e.offsetX
-      this.wheelY = e.offsetY
     },
     handleMouseleave() {
       // 鼠标离开画布

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="8">
+      <el-col :span="12">
         <el-form ref="form" :model="form" label-width="160px">
           <el-form-item label="原密码">
             <el-input v-model="form.oldPw" maxlength="30" type="password" />
@@ -13,7 +13,7 @@
             <el-input v-model="form.newPw2" maxlength="30" type="password" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">修改密码</el-button>
+            <el-button type="primary" :loading="saveLoading" @click="onSubmit">修改密码</el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -22,21 +22,20 @@
 </template>
 
 <script>
-// import request from '@/utils/request'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// // axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
 
-// request({
-//   url: '/vue-element-admin/user/login',
-//   method: 'post',
-//   data: {
-//     a: 1
-//   }
-// }).then((res) => {
-//   console.log(res)
-// })
+import { axios } from '@/utils/request'
 
 export default {
   data() {
     return {
+      saveLoading: false,
       form: {
         oldPw: '',
         newPw: '',
@@ -72,11 +71,24 @@ export default {
         })
         return
       }
-      // console.log(this.form.ntp)
-      // this.$message({
-      //   message: '恭喜你，这是一条成功消息',
-      //   type: 'success'
-      // })
+      this.saveLoading = true
+      axios.post('/set_pwd', {
+        new_pwd: newPw,
+        old_pwd: oldPw,
+        user_name: localStorage.getItem('username')
+      }).then((res) => {
+        this.saveLoading = false
+        this.$message({
+          message: '修改密码成功',
+          type: 'success'
+        })
+      }).catch((a) => {
+        this.saveLoading = false
+        this.$message({
+          message: '修改密码失败',
+          type: 'error'
+        })
+      })
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="8">
+      <el-col :span="12">
         <el-form ref="form" :model="form" label-width="160px" :rules="formRules">
           <el-form-item label="请选择分配模式">
             <el-radio-group v-model="form.radio" size="medium" @change="radioChange">
@@ -30,18 +30,15 @@
 </template>
 
 <script>
-import axios from 'axios'
-// import request from '@/utils/request'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
 
-// request({
-//   url: '/vue-element-admin/user/login',
-//   method: 'post',
-//   data: {
-//     a: 1
-//   }
-// }).then((res) => {
-//   console.log(res)
-// })
+import { axios } from '@/utils/request'
 
 export default {
   data() {
@@ -76,7 +73,7 @@ export default {
   },
   methods: {
     getDefaultData() {
-      axios.post('http://192.168.1.68:8080/get_ip').then((res) => {
+      axios.post('/get_ip').then((res) => {
         this.form.oldip = res.data.ip
       }).catch((a) => {
         this.$message({
@@ -92,7 +89,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.saveLoading = true
-          axios.post('http://192.168.1.68:8080/set_ip', {
+          axios.post('/set_ip', {
             dhcp: 0,
             dns: '8.8.8.8',
             gateway: this.form.gateway,
@@ -101,6 +98,7 @@ export default {
             port: 80
           }).then((res) => {
             this.saveLoading = false
+            this.form.oldip = this.form.ip
             this.$message({
               message: '设置成功',
               type: 'success'

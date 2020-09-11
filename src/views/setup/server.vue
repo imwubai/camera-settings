@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="8">
+      <el-col :span="12">
         <el-form ref="form" :model="form" label-width="160px" :rules="formRules">
           <el-form-item label="当前服务器IP地址为">{{ form.ip }}</el-form-item>
           <el-form-item label="当前服务器端口为">{{ form.port }}</el-form-item>
@@ -21,18 +21,15 @@
 </template>
 
 <script>
-import axios from 'axios'
-// import request from '@/utils/request'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
 
-// request({
-//   url: '/vue-element-admin/user/login',
-//   method: 'post',
-//   data: {
-//     a: 1
-//   }
-// }).then((res) => {
-//   console.log(res)
-// })
+import { axios } from '@/utils/request'
 
 export default {
   data() {
@@ -64,7 +61,7 @@ export default {
   },
   methods: {
     getDefaultData() {
-      axios.post('http://192.168.1.68:8080/get_ftp_ip').then((res) => {
+      axios.post('/get_ftp_ip').then((res) => {
         this.form.ip = res.data.ip
         this.form.port = res.data.port
       }).catch((a) => {
@@ -79,7 +76,7 @@ export default {
         if (valid) {
           const { newIp, newPort } = this.form
           this.saveLoading = true
-          axios.post('http://192.168.1.68:8080/set_ftp_ip', {
+          axios.post('/set_ftp_ip', {
             ip: newIp,
             port: newPort
           }).then((res) => {

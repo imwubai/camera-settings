@@ -1,34 +1,11 @@
 import axios from 'axios'
-import { apiDomain } from './config'
+import { apiDomain } from '@/utils/config'
+// 所有请求头加上token
 import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// 设置 baseURL
+axios.defaults.baseURL = apiDomain
 
-const request = (parameter) => {
-  const token = (getToken() || '')
-  const { url, method } = parameter
-  // 预先处理参数
-  Object.assign(parameter, {
-    method: method || 'POST',
-    url: apiDomain + url,
-    timeout: 5000,
-    data: parameter.data || {},
-    header: {
-      token
-    }
-  })
-
-  return axios.request(parameter).then((response) => {
-    // console.log(123123)
-    // console.log(typeof response)
-    // return response
-  }).catch((e) => {
-    const { hideLoading, errorMsg } = parameter
-    hideLoading && hideLoading()
-    Message({
-      message: errorMsg || '服务器异常',
-      type: 'error'
-    })
-    return e
-  })
+export {
+  axios
 }
-export default request

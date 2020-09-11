@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="8">
+      <el-col :span="12">
         <el-form ref="form" :model="form" label-width="180px" :rules="formRules">
           <el-form-item label="当前NTP服务器地址为">
             <el-input v-model="form.ntp" disabled />
@@ -22,8 +22,15 @@
 </template>
 
 <script>
-import axios from 'axios'
-// import request from '@/utils/request'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
+
+import { axios } from '@/utils/request'
 
 export default {
   data() {
@@ -51,7 +58,7 @@ export default {
   },
   methods: {
     getNtp() {
-      axios.post('http://192.168.1.68:8080/get_ntp').then((res) => {
+      axios.post('/get_ntp').then((res) => {
         this.form.ntp = res.data.server
         this.form.time = res.data.time
       }).catch((a) => {
@@ -65,7 +72,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.saveLoading = true
-          axios.post('http://192.168.1.68:8080/set_ntp', {
+          axios.post('/set_ntp', {
             enable: 1,
             server: this.form.newntp
           }).then((res) => {

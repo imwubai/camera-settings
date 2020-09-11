@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="title-container">
-        <h3 class="title">摄像机设置系统</h3>
+        <h3 class="title">非机动车信息采集系统</h3>
       </div>
       <el-form-item prop="username">
         <span class="svg-container">
@@ -40,8 +40,15 @@
 </template>
 
 <script>
-import request from '@/utils/request'
 // import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// // axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
+
+import { axios } from '@/utils/request'
 
 export default {
   name: 'Login',
@@ -94,47 +101,27 @@ export default {
       })
     },
     handleLogin() {
+      const _this = this
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          request({
-            url: '/login',
-            data: {
-              user_name: this.loginForm.username,
-              password: this.loginForm.password
-            },
-            errorMsg: '登录失败，请检查用户名或密码',
-            hideLoading: () => {
-              this.loading = false
-            }
+          axios.post('/login', {
+            user_name: this.loginForm.username,
+            password: this.loginForm.password
           }).then((res) => {
             this.loading = false
-            console.log(11111)
-            console.log(res)
-            console.log(typeof res)
-            // localStorage.setItem('token', res.data.token)
-            // localStorage.setItem('username', this.loginForm.username)
-            // this.$router.push({ path: this.redirect || '/' })
-            // document.querySelector('#nav_username').innerHTML = this.loginForm.username
-          }).catch((e) => {
-            console.log(2222)
-            console.log(e)
+            // console.log(res)
+            // let {token} = res.data
+            localStorage.setItem('token', res.data.token)
+            localStorage.setItem('username', _this.loginForm.username)
+            _this.$router.push({ path: _this.redirect || '/' })
+          }).catch(() => {
+            this.loading = false
+            this.$message({
+              message: '登录失败，请检查用户名或密码',
+              type: 'error'
+            })
           })
-          // axios.post('http://192.168.1.68:8080/login', {
-          //   user_name: this.loginForm.username,
-          //   password: this.loginForm.password
-          // }).then((res) => {
-          //   // console.log(res.data)
-          //   // let {token} = res.data
-          //   localStorage.setItem('token', res.data.token)
-          //   localStorage.setItem('username', _this.loginForm.username)
-          //   _this.$router.push({ path: _this.redirect || '/' })
-          // }).catch((a) => {
-          //   this.$message({
-          //     message: '登录失败，请检查用户名或密码',
-          //     type: 'error'
-          //   })
-          // })
         }
       })
     }

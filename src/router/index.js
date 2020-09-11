@@ -75,17 +75,23 @@ export const constantRoutes = [
         meta: { title: '服务器IP设置' }
       },
       {
-        path: 'camera',
+        path: 'camera1',
         name: 'camera',
-        component: () => import('@/views/setup/camera'),
-        meta: { title: '摄像机设置' }
+        component: () => import('@/views/setup/camera1'),
+        meta: { title: '摄像机1设置' }
       },
       {
-        path: 'cameraline',
-        name: 'cameraline',
-        component: () => import('@/views/setup/cameraline'),
-        meta: { title: '摄像机画线设置' }
+        path: 'camera2',
+        name: 'camera',
+        component: () => import('@/views/setup/camera2'),
+        meta: { title: '摄像机2设置' }
       }
+      // {
+      //   path: 'cameraline',
+      //   name: 'cameraline',
+      //   component: () => import('@/views/setup/cameraline'),
+      //   meta: { title: '摄像机画线设置' }
+      // }
     ]
   },
 

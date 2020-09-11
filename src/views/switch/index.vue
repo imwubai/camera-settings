@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="8">
+      <el-col :span="24">
         <el-form ref="form" :model="form" label-width="160px">
           <el-form-item label="摄像机1">
             <el-radio-group v-model="form.big_cam_stat" size="medium" @change="radioChange">
@@ -25,8 +25,15 @@
 </template>
 
 <script>
-import axios from 'axios'
-// import request from '@/utils/request'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
+
+import { axios } from '@/utils/request'
 
 export default {
   data() {
@@ -43,7 +50,7 @@ export default {
   },
   methods: {
     getDefaultData() {
-      axios.post('http://192.168.1.68:8080/get_sys_stat').then((res) => {
+      axios.post('/get_sys_stat').then((res) => {
         this.form.big_cam_stat = res.data.big_cam_stat
         this.form.middle_cam_stat = res.data.middle_cam_stat
       }).catch((a) => {
@@ -58,7 +65,7 @@ export default {
     },
     onSubmit() {
       this.saveLoading = true
-      axios.post('http://192.168.1.68:8080/enable_proc', {
+      axios.post('/enable_proc', {
         big_cam: (this.form.big_cam_stat === 'running' ? 1 : 0),
         middle_cam: (this.form.middle_cam_stat === 'running' ? 1 : 0)
       }).then((res) => {

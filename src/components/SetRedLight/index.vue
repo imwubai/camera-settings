@@ -9,7 +9,7 @@
         @click="switchopenDrawRight"
       >画右边线</el-button>
       <el-button size="small" :type="openDrawStop ? 'primary' : ''" @click="switchopenDrawStop">画停车线</el-button>
-      <el-button size="small" type="danger" @click="reset">清除</el-button>
+      <el-button size="small" type="danger" @click="reset">重置</el-button>
     </div>
     <div class="box" :style="{width:`${imgInitialWidth}px`,height: `${imgInitialHeight}px`}">
       <canvas id="bg-img" :width="width" :height="height" />

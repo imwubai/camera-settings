@@ -22,10 +22,15 @@
         width="180"
       />
       <el-table-column
-        prop="isred"
+        prop="illegal"
         label="违法行为"
         width="180"
-      />
+      >
+        <template slot-scope="scope">
+          <!-- <el-button type="text" size="medium" @click="viewImage(scope.row, 'big')">查看</el-button> -->
+          <div>{{ renderIllegal(scope.row) }}</div>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="location"
         label="违法地点"
@@ -68,7 +73,16 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
+// import { apiDomain } from '@/utils/config'
+// // 所有请求头加上token
+// import { getToken } from '@/utils/auth'
+// axios.defaults.headers.common['token'] = (getToken() || '')
+// // 设置 baseURL
+// axios.defaults.baseURL = apiDomain
+
+import { axios } from '@/utils/request'
+import { apiDomain } from '@/utils/config'
 
 // 定时器
 let intervalTimer
@@ -98,12 +112,30 @@ export default {
     clearInterval(intervalTimer)
     this.autoRefreshChange(true)
   },
+  destroyed() {
+    clearInterval(intervalTimer)
+  },
   created() {
     // this.fetchData()
   },
   methods: {
+    renderIllegal(rowData) {
+      const objects = (rowData.objects || [])
+      const illegalType = {
+        redline: '闯红灯',
+        overline: '越线',
+        wrongway: '逆行',
+        doubleman: '一车多人',
+        nohelmet: '无头盔',
+        umbrella: '安装伞具'
+      }
+      const arrarText = []
+      objects.forEach((item) => {
+        arrarText.push(illegalType[item.illegal])
+      })
+      return arrarText.join('、')
+    },
     autoRefreshChange(checked) {
-      console.log(checked)
       clearInterval(intervalTimer)
       if (checked) {
         intervalTimer = setInterval(() => {
@@ -113,15 +145,15 @@ export default {
     },
     viewImage(row, type) {
       if (type === 'big') {
-        this.imgSrc = `http://192.168.1.68:8080/static/${row.filename}`
+        this.imgSrc = `${apiDomain}/static/${row.filename}`
       } else {
-        this.imgSrc = `http://192.168.1.68:8080/static/${row.smallvideo}`
+        this.imgSrc = `${apiDomain}/static/${row.smallvideo}`
       }
       this.dialogVisible = true
     },
     fetchData() {
       this.listLoading = false
-      axios.post('http://192.168.1.68:8080/list_pic').then((res) => {
+      axios.post('/list_pic').then((res) => {
         this.listLoading = false
         this.tableData = res.data
       }).catch((a) => {

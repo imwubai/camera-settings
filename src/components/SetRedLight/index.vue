@@ -110,66 +110,107 @@ export default {
       return 'zoom-in'
     },
     result() {
-      const { start: leftStart, end: leftEnd } = this.leftLintPoint
-      const { start: rightStart, end: rightEnd } = this.rightLintPoint
-      const { start: stopStart, end: stopEnd } = this.stopLintPoint
-      const { leftTop, rightBottom } = this.redPoint
-      const leftStartCoord = leftStart.split(',')
-      const leftEndCoord = leftEnd.split(',')
-      const rightStartCoord = rightStart.split(',')
-      const rightEndCoord = rightEnd.split(',')
-      const stopStartCoord = stopStart.split(',')
-      const stopEndCoord = stopEnd.split(',')
-      const leftTopCoord = leftTop.split(',')
-      const rightBottomCoord = rightBottom.split(',')
-      if (!this.isOriginImg) {
-        return {
-          left: { // 左边线坐标
-            start: [this.realX(leftStartCoord[0]), this.realY(leftStartCoord[1])],
+      let left = {} // 抛出去的左边线坐标
+      let right = {} // 抛出去的右边线坐标
+      let stop = {} // 抛出去的停车线坐标
+      let red = {} // 抛出去的红灯坐标
+      if (Object.keys(this.leftLintPoint).length > 0) {
+        const { start: leftStart, end: leftEnd } = this.leftLintPoint
+        const leftStartCoord = leftStart.split(',')
+        const leftEndCoord = leftEnd.split(',')
+
+        if (!this.isOriginImg) {
+          left = {
+            // 左边线坐标
+            start: [
+              this.realX(leftStartCoord[0]),
+              this.realY(leftStartCoord[1])
+            ],
             end: [this.realX(leftEndCoord[0]), this.realY(leftEndCoord[1])]
-          },
-          right: { // 右边线坐标
-            start: [this.realX(rightStartCoord[0]), this.realY(rightStartCoord[1])],
-            end: [this.realX(rightEndCoord[0]), this.realY(rightEndCoord[1])]
-          },
-          stop: { // 停车线坐标
-            start: [this.realX(stopStartCoord[0]), this.realY(stopStartCoord[1])],
-            end: [this.realX(stopEndCoord[0]), this.realY(stopEndCoord[1])]
-          },
-          red: { // 红灯坐标
-            leftTop: [this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1])],
-            rightBottom: [this.realX(rightBottomCoord[0]), this.realY(rightBottomCoord[1])]
+          }
+        } else {
+          left = {
+            // 左边线坐标
+            start: [
+              this.realX(leftStartCoord[0]),
+              this.realY(leftStartCoord[1])
+            ],
+            end: [this.realX(leftEndCoord[0]), this.realY(leftEndCoord[1])]
           }
         }
-      } else {
-        return {
-          left: { // 左边线坐标
-            start: leftStartCoord,
-            end: leftEndCoord
-          },
-          right: { // 右边线坐标
+      }
+      if (Object.keys(this.rightLintPoint).length > 0) {
+        const { start: rightStart, end: rightEnd } = this.rightLintPoint
+        const rightStartCoord = rightStart.split(',')
+        const rightEndCoord = rightEnd.split(',')
+        if (!this.isOriginImg) {
+          right = {
+            // 右边线坐标
+            start: [
+              this.realX(rightStartCoord[0]),
+              this.realY(rightStartCoord[1])
+            ],
+            end: [this.realX(rightEndCoord[0]), this.realY(rightEndCoord[1])]
+          }
+        } else {
+          right = {
+            // 右边线坐标
             start: rightStartCoord,
             end: rightEndCoord
-          },
-          stop: { // 停车线坐标
+          }
+        }
+      }
+      if (Object.keys(this.stopLintPoint).length > 0) {
+        const { start: stopStart, end: stopEnd } = this.stopLintPoint
+        const stopStartCoord = stopStart.split(',')
+        const stopEndCoord = stopEnd.split(',')
+        if (!this.isOriginImg) {
+          stop = {
+            // 停车线坐标
+            start: [
+              this.realX(stopStartCoord[0]),
+              this.realY(stopStartCoord[1])
+            ],
+            end: [this.realX(stopEndCoord[0]), this.realY(stopEndCoord[1])]
+          }
+        } else {
+          stop = {
+            // 停车线坐标
             start: stopStartCoord,
             end: stopEndCoord
-          },
-          red: { // 红灯坐标
+          }
+        }
+      }
+      if (Object.keys(this.redPoint).length > 0) {
+        const { leftTop, rightBottom } = this.redPoint
+        const leftTopCoord = leftTop.split(',')
+        const rightBottomCoord = rightBottom.split(',')
+        if (!this.isOriginImg) {
+          red = {
+            // 红灯坐标
+            leftTop: [this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1])],
+            rightBottom: [
+              this.realX(rightBottomCoord[0]),
+              this.realY(rightBottomCoord[1])
+            ]
+          }
+        } else {
+          red = {
+            // 红灯坐标
             leftTop: leftTopCoord,
             rightBottom: rightBottomCoord
           }
         }
       }
+      return {
+        left,
+        right,
+        stop,
+        red
+      }
     }
   },
   mounted() {
-    /** 初始化获取画布实例，画布比例 */
-    this.bgCtx = document.getElementById('bg-img').getContext('2d')
-    this.leftCtx = document.getElementById('left-img').getContext('2d')
-    this.rightCtx = document.getElementById('right-img').getContext('2d')
-    this.stopCtx = document.getElementById('stop-img').getContext('2d')
-    this.redCtx = document.getElementById('red-img').getContext('2d')
     this.initDraw(true)
   },
   methods: {
@@ -220,6 +261,14 @@ export default {
       return (proportion * 10 ** index * currentY) / 10 ** index
     },
     initDraw(isInitial) {
+      if (isInitial) {
+        /** 初始化获取画布实例，画布比例 */
+        this.bgCtx = document.getElementById('bg-img').getContext('2d')
+        this.leftCtx = document.getElementById('left-img').getContext('2d')
+        this.rightCtx = document.getElementById('right-img').getContext('2d')
+        this.stopCtx = document.getElementById('stop-img').getContext('2d')
+        this.redCtx = document.getElementById('red-img').getContext('2d')
+      }
       // 初始绘制
       const img = new Image()
       img.src = this.imgUrl
@@ -265,7 +314,8 @@ export default {
               startCoord[1],
               endCoord[0],
               endCoord[1],
-              'Right')
+              'Right'
+            )
           }
           if (Object.keys(this.stopLintPoint).length > 0) {
             // 绘制已有的停车线
@@ -293,15 +343,38 @@ export default {
             this.redCtx.strokeStyle = '#f00'
             this.redCtx.lineWidth = 2
             this.redCtx.beginPath()
-            if (this.isOriginImg && !this.isDrawRedInTransform) { // 切换成原图，但绘制时为缩略图
-              this.redCtx.moveTo(this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1]))
-              this.redCtx.rect(this.realX(leftTopCoord[0]), this.realY(leftTopCoord[1]), this.realX(redWidth), this.realY(redHeight))
-            } else if (!this.isOriginImg && this.isDrawRedInTransform) { //
-              this.redCtx.moveTo(this.scaleX(leftTopCoord[0]), this.scaleY(leftTopCoord[1]))
-              this.redCtx.rect(this.scaleX(leftTopCoord[0]), this.scaleY(leftTopCoord[1]), this.scaleX(redWidth), this.scaleY(redHeight))
+            if (this.isOriginImg && !this.isDrawRedInTransform) {
+              // 切换成原图，但绘制时为缩略图
+              this.redCtx.moveTo(
+                this.realX(leftTopCoord[0]),
+                this.realY(leftTopCoord[1])
+              )
+              this.redCtx.rect(
+                this.realX(leftTopCoord[0]),
+                this.realY(leftTopCoord[1]),
+                this.realX(redWidth),
+                this.realY(redHeight)
+              )
+            } else if (!this.isOriginImg && this.isDrawRedInTransform) {
+              //
+              this.redCtx.moveTo(
+                this.scaleX(leftTopCoord[0]),
+                this.scaleY(leftTopCoord[1])
+              )
+              this.redCtx.rect(
+                this.scaleX(leftTopCoord[0]),
+                this.scaleY(leftTopCoord[1]),
+                this.scaleX(redWidth),
+                this.scaleY(redHeight)
+              )
             } else {
               this.redCtx.moveTo(leftTopCoord[0], leftTopCoord[1])
-              this.redCtx.rect(leftTopCoord[0], leftTopCoord[1], redWidth, redHeight)
+              this.redCtx.rect(
+                leftTopCoord[0],
+                leftTopCoord[1],
+                redWidth,
+                redHeight
+              )
             }
             this.redCtx.closePath()
             this.redCtx.stroke()
@@ -315,10 +388,12 @@ export default {
       ctx.strokeStyle = '#f00'
       ctx.lineWidth = 2
       ctx.beginPath()
-      if (this.isOriginImg && !this[`isDraw${type}InTransform`]) { // 切换成原图，但绘制时为缩略图
+      if (this.isOriginImg && !this[`isDraw${type}InTransform`]) {
+        // 切换成原图，但绘制时为缩略图
         ctx.moveTo(this.realX(startX), this.realY(startY))
         ctx.lineTo(this.realX(endX), this.realY(endY))
-      } else if (!this.isOriginImg && this[`isDraw${type}InTransform`]) { //
+      } else if (!this.isOriginImg && this[`isDraw${type}InTransform`]) {
+        //
         ctx.moveTo(this.scaleX(startX), this.scaleY(startY))
         ctx.lineTo(this.scaleX(endX), this.scaleY(endY))
       } else {
@@ -453,11 +528,8 @@ export default {
       this.rightCtx.clearRect(0, 0, this.width, this.height)
       this.stopCtx.clearRect(0, 0, this.width, this.height)
       this.redCtx.clearRect(0, 0, this.width, this.height)
-      this.isOriginImg = false
-      this.leftLintPoint = {}
-      this.rightLintPoint = {}
-      this.stopLintPoint = {}
-      this.redPoint = {}
+      Object.assign(this.$data, this.$options.data())
+      this.initDraw(true)
     },
     handleMousedown(e) {
       // 鼠标按下

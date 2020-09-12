@@ -55,16 +55,17 @@
         width="150"
       >
         <template slot-scope="scope">
-          <el-button type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
+          <el-button v-if="scope.row.small_objects.length" type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-dialog
-      title="提示"
+      title="查看图片"
       :visible.sync="dialogVisible"
-      width="1000px"
+      :destroy-on-close="true"
+      width="1040px"
     >
-      <img :src="imgSrc" class="dialogimg">
+      <div id="dialog_img_box"><img id="dialog_img" :src="imgSrc" class="dialogimg" @load="imgLoad"></div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
@@ -73,14 +74,6 @@
 </template>
 
 <script>
-// import axios from 'axios'
-// import { apiDomain } from '@/utils/config'
-// // 所有请求头加上token
-// import { getToken } from '@/utils/auth'
-// axios.defaults.headers.common['token'] = (getToken() || '')
-// // 设置 baseURL
-// axios.defaults.baseURL = apiDomain
-
 import { axios } from '@/utils/request'
 import { apiDomain } from '@/utils/config'
 
@@ -100,6 +93,8 @@ export default {
   },
   data() {
     return {
+      isLookBigImg: false, // 是否查看大场景
+      currentObjects: [], // 当前查看大图的违法行为列表
       imgSrc: '',
       dialogVisible: false,
       listLoading: true,
@@ -143,11 +138,32 @@ export default {
         }, 3000)
       }
     },
+    imgLoad(e) {
+      if (this.isLookBigImg) {
+        this.currentObjects.forEach((item) => {
+          const { naturalWidth, clientWidth } = e.path[0]
+          const proportion = (naturalWidth / clientWidth).toFixed(2)
+          const boxWidth = item.bottom - item.top
+          const boxheight = item.right - item.left
+          const div = document.createElement('div')
+          div.style.position = 'absolute'
+          div.style.left = (item.left / proportion).toFixed(2) + 'px'
+          div.style.top = (item.top / proportion).toFixed(2) + 'px'
+          div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
+          div.style.height = (boxheight / proportion).toFixed(2) + 'px'
+          div.style.border = '2px solid #f00'
+          document.querySelector('#dialog_img_box').appendChild(div)
+        })
+      }
+    },
     viewImage(row, type) {
       if (type === 'big') {
         this.imgSrc = `${apiDomain}/static/${row.filename}`
+        this.isLookBigImg = true
+        this.currentObjects = row.objects
       } else {
         this.imgSrc = `${apiDomain}/static/${row.smallvideo}`
+        this.isLookBigImg = false
       }
       this.dialogVisible = true
     },
@@ -167,9 +183,14 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
+#dialog_img_box {
+  position: relative;
+  overflow: hidden;
+}
+
 .dialogimg {
-  max-width: 960px;
+  max-width: 1000px;
 }
 .pagination {
   margin-top: 20px;

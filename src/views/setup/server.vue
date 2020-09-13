@@ -66,7 +66,7 @@ export default {
         this.form.port = res.data.port
       }).catch((a) => {
         this.$message({
-          message: '获取NTP服务异常',
+          message: '获取服务器IP异常',
           type: 'error'
         })
       })

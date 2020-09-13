@@ -77,7 +77,7 @@ export default {
         this.form.oldip = res.data.ip
       }).catch((a) => {
         this.$message({
-          message: '获取NTP服务异常',
+          message: '获取本机IP服务异常',
           type: 'error'
         })
       })

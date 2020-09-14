@@ -27,7 +27,6 @@
         width="180"
       >
         <template slot-scope="scope">
-          <!-- <el-button type="text" size="medium" @click="viewImage(scope.row, 'big')">查看</el-button> -->
           <div>{{ renderIllegal(scope.row) }}</div>
         </template>
       </el-table-column>
@@ -55,7 +54,7 @@
         width="150"
       >
         <template slot-scope="scope">
-          <el-button v-if="scope.row.small_objects.length" type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
+          <el-button v-if="scope.row.small_objects && scope.row.small_objects.length" type="text" size="medium" @click="viewImage(scope.row, 'small')">查看</el-button>
         </template>
       </el-table-column>
     </el-table>

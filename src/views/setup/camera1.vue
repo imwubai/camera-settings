@@ -222,21 +222,23 @@ export default {
   },
   methods: {
     showSetRedLightModal(cam_name) {
-      this.test_cam_loading = true
-      axios.post('/test_pic', {
-        cam_name
-      }).then((res) => {
-        this.test_cam_loading = false
-        const imgSrc = `${apiDomain}/${res.data.filepath}`
-        this.imgUrl = imgSrc
-        this.redLightVisible = true
-      }).catch((a) => {
-        this.test_cam_loading = false
-        this.$message({
-          message: '获取照片失败',
-          type: 'error'
-        })
-      })
+      this.imgUrl = 'https://w.wallhaven.cc/full/96/wallhaven-967zyk.jpg'
+      this.redLightVisible = true
+      // this.test_cam_loading = true
+      // axios.post('/test_pic', {
+      //   cam_name
+      // }).then((res) => {
+      //   this.test_cam_loading = false
+      //   const imgSrc = `${apiDomain}/${res.data.filepath}`
+      //   this.imgUrl = imgSrc
+      //   this.redLightVisible = true
+      // }).catch((a) => {
+      //   this.test_cam_loading = false
+      //   this.$message({
+      //     message: '获取照片失败',
+      //     type: 'error'
+      //   })
+      // })
     },
     saveSetRedLight() { // 保存设置的红灯
       const ref = this.$refs.setRedLightRef

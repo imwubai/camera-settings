@@ -242,7 +242,7 @@ export default {
     },
     saveSetRedLight() { // 保存设置的红灯
       const ref = this.$refs.setRedLightRef
-      const { result: { left, right, stop, red }} = ref
+      const { result: { left, right, stop, redStop, red }} = ref
       if (Object.keys(left).length === 0) {
         this.$message({
           type: 'warning',
@@ -264,6 +264,13 @@ export default {
         })
         return
       }
+      if (Object.keys(redStop).length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '未画红灯线'
+        })
+        return
+      }
       if (Object.keys(red).length === 0) {
         this.$message({
           type: 'warning',
@@ -273,10 +280,11 @@ export default {
       }
       this.redLightVisible = false
       this.redLightResult = ref.result
-      // console.log('左边线坐标：', left)
-      // console.log('右边线坐标：', right)
-      // console.log('停车线坐标：', stop)
-      // console.log('红灯坐标：', red)
+      console.log('左边线坐标：', left)
+      console.log('右边线坐标：', right)
+      console.log('停车线坐标：', stop)
+      console.log('红灯线坐标：', redStop)
+      console.log('红灯坐标：', red)
     },
     getDefaultData() {
       axios.post('/get_big_cam').then((res) => {

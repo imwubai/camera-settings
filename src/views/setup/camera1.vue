@@ -280,11 +280,11 @@ export default {
       }
       this.redLightVisible = false
       this.redLightResult = ref.result
-      console.log('左边线坐标：', left)
-      console.log('右边线坐标：', right)
-      console.log('停车线坐标：', stop)
-      console.log('红灯线坐标：', redStop)
-      console.log('红灯坐标：', red)
+      // console.log('左边线坐标：', left)
+      // console.log('右边线坐标：', right)
+      // console.log('停车线坐标：', stop)
+      // console.log('红灯线坐标：', redStop)
+      // console.log('红灯坐标：', red)
     },
     getDefaultData() {
       axios.post('/get_big_cam').then((res) => {
@@ -329,7 +329,9 @@ export default {
           }
           // 重新画线了
           if (Object.keys(this.redLightResult).length > 0) {
-            const { left, right, stop, red } = this.redLightResult
+            const { left, right, stop, red, redStop } = this.redLightResult
+            // stop: 停车线
+            // redStop: 红灯线
             // 计算方法：已知图中两点（x1, y1)(x2, y2) , left_slope = (x2 - x1) / (y2 - y1)
             // left_x = x1 - left_slope * y1
             const left_slope = Number(((left.end[0] - left.start[0]) / (left.end[1] - left.start[1])).toFixed(2))
@@ -339,7 +341,8 @@ export default {
               signal_top: Number(red.leftTop[1].toFixed(0)), // 红绿灯左上角Y坐标
               signal_right: Number(red.rightBottom[0].toFixed(0)), // 红绿灯右下角X坐标
               signal_bottom: Number(red.rightBottom[1].toFixed(0)), // 红绿灯右下角Y坐标
-              red_line: Number(stop.start[1].toFixed(0)), // 停车线起点Y坐标
+              red_line: Number(redStop.start[1].toFixed(0)), // 红灯线起点Y坐标
+              overline: Number(stop.start[1].toFixed(0)), // 停车线起点Y坐标
               left_x: Number((left.start[0] - left_slope * left.start[1]).toFixed(0)),
               left_slope,
               right_x: Number((right.start[0] - right_slope * right.start[1]).toFixed(0)),

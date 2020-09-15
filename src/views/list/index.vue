@@ -64,7 +64,7 @@
       :destroy-on-close="true"
       width="1040px"
     >
-      <div id="dialog_img_box"><img id="dialog_img" :src="imgSrc" class="dialogimg" @load="imgLoad"></div>
+      <div id="dialog_img_box" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
@@ -93,8 +93,6 @@ export default {
   data() {
     return {
       isLookBigImg: false, // 是否查看大场景
-      currentObjects: [], // 当前查看大图的违法行为列表
-      imgSrc: '',
       dialogVisible: false,
       listLoading: true,
       autoRefresh: true, // 自动刷新
@@ -105,12 +103,49 @@ export default {
     this.fetchData()
     clearInterval(intervalTimer)
     this.autoRefreshChange(true)
+    // 下面是模拟数据
+    // this.listLoading = false
+    // this.tableData = [
+    //   {
+    //     'filename': 'big_20200904121759_00000077.jpg', // # 大场景或者中场景截图名，
+    //     // # big或者middle表示场景  20200904121759时间字符串年2020-09-04 12：17：59 00000077第77个图
+    //     'location': 'abc', // # 摄像机安装的地区位置
+    //     'time': '20200904121759', // #时间，同文件名里
+    //     'isred': 1, // #此图是否是红灯
+    //     'redline': 10, // #红灯线在图的比例，从下算
+    //     'overline': 5, // #越线线在图的比例，从下算
+    //     'cameradirection': 0, // #摄像头朝向，0对脸，1对背
+    //     'smallvideo': 'big_20200904121759_00000077-small.jpg', // #小场景截图名，不一定存在要根据small_objects里是否有内容判读
+    //     'objects': [ // #大中场景里判别的违法对象
+    //       { 'illegal': 'redline', 'name': 'motorbike', 'left': 1547, 'top': 631, 'right': 1720, 'bottom': 847 },
+    //       // # 违法方式，            违法对象：摩托，自行车  在图中的坐标，左，上，右，下
+    //       { 'illegal': 'redline', 'name': 'motorbike', 'left': 2006, 'top': 745, 'right': 2156, 'bottom': 940 }
+    //     ],
+    //     'small_objects': [
+    //       { 'illegal': 'redline', 'name': 'motorbike', 'left': 1685, 'top': 588, 'right': 2060, 'bottom': 1355 }
+    //     ]
+    //   },
+    //   {
+    //     'filename': 'big_20200904121759_00000077.jpg', // # 大场景或者中场景截图名，
+    //     // # big或者middle表示场景  20200904121759时间字符串年2020-09-04 12：17：59 00000077第77个图
+    //     'location': 'abc', // # 摄像机安装的地区位置
+    //     'time': '20200904121759', // #时间，同文件名里
+    //     'isred': 1, // #此图是否是红灯
+    //     'redline': 10, // #红灯线在图的比例，从下算
+    //     'overline': 5, // #越线线在图的比例，从下算
+    //     'cameradirection': 0, // #摄像头朝向，0对脸，1对背
+    //     'smallvideo': 'big_20200904121759_00000077-small.jpg', // #小场景截图名，不一定存在要根据small_objects里是否有内容判读
+    //     'objects': [ // #大中场景里判别的违法对象
+    //       { 'illegal': 'redline', 'name': 'motorbike', 'left': 1547, 'top': 631, 'right': 1720, 'bottom': 847 }
+    //     ],
+    //     'small_objects': [
+    //       { 'illegal': 'redline', 'name': 'motorbike', 'left': 1685, 'top': 588, 'right': 2060, 'bottom': 1355 }
+    //     ]
+    //   }
+    // ]
   },
   destroyed() {
     clearInterval(intervalTimer)
-  },
-  created() {
-    // this.fetchData()
   },
   methods: {
     renderIllegal(rowData) {
@@ -137,32 +172,41 @@ export default {
         }, 3000)
       }
     },
-    imgLoad(e) {
-      if (this.isLookBigImg) {
-        this.currentObjects.forEach((item) => {
-          const { naturalWidth, clientWidth } = e.path[0]
-          const proportion = (naturalWidth / clientWidth).toFixed(2)
-          const boxWidth = item.bottom - item.top
-          const boxheight = item.right - item.left
-          const div = document.createElement('div')
-          div.style.position = 'absolute'
-          div.style.left = (item.left / proportion).toFixed(2) + 'px'
-          div.style.top = (item.top / proportion).toFixed(2) + 'px'
-          div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
-          div.style.height = (boxheight / proportion).toFixed(2) + 'px'
-          div.style.border = '2px solid #f00'
-          document.querySelector('#dialog_img_box').appendChild(div)
-        })
-      }
-    },
     viewImage(row, type) {
       if (type === 'big') {
-        this.imgSrc = `${apiDomain}/static/${row.filename}`
         this.isLookBigImg = true
-        this.currentObjects = row.objects
+        const currentObjects = row.objects || []
+        setTimeout(() => {
+          const img = document.createElement('img')
+          img.src = `${apiDomain}/static/${row.filename}`
+          img.style.width = '1000px'
+          img.onload = (e) => {
+            currentObjects.forEach((item) => {
+              const { naturalWidth, clientWidth } = e.path[0]
+              const proportion = (naturalWidth / clientWidth).toFixed(2)
+              const boxWidth = item.bottom - item.top
+              const boxheight = item.right - item.left
+              const div = document.createElement('div')
+              div.setAttribute('class', 'bigImgredBox')
+              div.style.position = 'absolute'
+              div.style.left = (item.left / proportion).toFixed(2) + 'px'
+              div.style.top = (item.top / proportion).toFixed(2) + 'px'
+              div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
+              div.style.height = (boxheight / proportion).toFixed(2) + 'px'
+              div.style.border = '2px solid #f00'
+              document.querySelector('#dialog_img_box').appendChild(div)
+            })
+          }
+          document.querySelector('#dialog_img_box').appendChild(img)
+        }, 100)
       } else {
-        this.imgSrc = `${apiDomain}/static/${row.smallvideo}`
         this.isLookBigImg = false
+        setTimeout(() => {
+          const img = document.createElement('img')
+          img.src = `${apiDomain}/static/${row.smallvideo}`
+          img.style.width = '1000px'
+          document.querySelector('#dialog_img_box').appendChild(img)
+        }, 100)
       }
       this.dialogVisible = true
     },

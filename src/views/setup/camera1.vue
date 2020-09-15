@@ -79,10 +79,10 @@
       </el-row>
       <el-row>
         <el-col :span="8">
-          <el-form-item label="交通灯颜色" prop="signal_color_value">
-            <el-select v-model="form.signal_color_value" placeholder="请选择">
+          <el-form-item label="交通灯颜色" prop="signal_color">
+            <el-select v-model="form.signal_color" placeholder="请选择">
               <el-option
-                v-for="item in signal_color"
+                v-for="item in signal_color_array"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -91,10 +91,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="摄像机方位" prop="direction_value">
-            <el-select v-model="form.direction_value" placeholder="请选择">
+          <el-form-item label="摄像机方位" prop="direction">
+            <el-select v-model="form.direction" placeholder="请选择">
               <el-option
-                v-for="item in direction"
+                v-for="item in direction_array"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -166,34 +166,34 @@ export default {
         propotion: [{ required: true, trigger: 'blur', validator: validateInput }],
         small_cam_name: [{ required: true, trigger: 'blur', validator: validateInput }],
         umbrella_thres: [{ required: true, trigger: 'blur', validator: validateInput }],
-        signal_color_value: [{ required: true, trigger: 'blur', validator: validateInput }],
-        direction_value: [{ required: true, trigger: 'blur', validator: validateInput }]
+        signal_color: [{ required: true, trigger: 'blur', validator: validateInput }],
+        direction: [{ required: true, trigger: 'blur', validator: validateInput }]
       },
       saveLoading: false,
       dialogVisible: false,
       imgSrc: '', // 测试相机返回的图片地址
       test_cam_loading: false,
-      signal_color: [
+      signal_color_array: [
         {
-          value: '0',
+          value: 0,
           label: '红灯'
         },
         {
-          value: '1',
+          value: 1,
           label: '黄灯'
         },
         {
-          value: '2',
+          value: 2,
           label: '绿灯'
         }
       ],
-      direction: [
+      direction_array: [
         {
-          value: '0',
+          value: 0,
           label: '对脸'
         },
         {
-          value: '1',
+          value: 1,
           label: '对背'
         }
       ],
@@ -212,8 +212,8 @@ export default {
         propotion: 50,
         small_cam_name: '',
         umbrella_thres: '',
-        signal_color_value: '0',
-        direction_value: '0'
+        signal_color: 0,
+        direction: 0
       }
     }
   },
@@ -323,8 +323,8 @@ export default {
         if (valid) {
           this.saveLoading = true
           const reqData = {
-            direction: Number(this.form.direction_value),
-            signal_color: Number(this.form.signal_color_value),
+            // direction: this.form.direction,
+            // signal_color: this.form.signal_color,
             ...this.form
           }
           // 重新画线了

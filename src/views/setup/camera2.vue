@@ -22,48 +22,48 @@
       <el-row>
         <el-col :span="8">
           <el-form-item label="图片上下比例" prop="propotion">
-            <el-input-number v-model="form.propotion" controls-position="right" :min="0" :max="100" :step="1" />
+            <el-input-number v-model="form.propotion" controls-position="right" :min="1" :max="100" :step="1" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="抓拍间隔" prop="detect_interval">
-            <el-input-number v-model="form.detect_interval" controls-position="right" :min="0" :max="25" :step="1" />
+            <el-input-number v-model="form.detect_interval" controls-position="right" :min="1" :max="100" :step="1" />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
           <el-form-item label="摩托识别置信度" prop="moto_thres">
-            <el-input-number v-model="form.moto_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.moto_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="自行车识别置信度" prop="bike_thres">
-            <el-input-number v-model="form.bike_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.bike_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
           <el-form-item label="人脸识别置信度" prop="person_thres">
-            <el-input-number v-model="form.person_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.person_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="脸部识别置信度" prop="face_thres">
-            <el-input-number v-model="form.face_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.face_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
           <el-form-item label="头盔识别置信度" prop="helmet_thres">
-            <el-input-number v-model="form.helmet_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.helmet_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="伞具识别置信度" prop="umbrella_thres">
-            <el-input-number v-model="form.umbrella_thres" controls-position="right" :min="0" :max="1500" :step="0.1" />
+            <el-input-number v-model="form.umbrella_thres" controls-position="right" :min="0" :max="1" :step="0.1" />
           </el-form-item>
         </el-col>
       </el-row>

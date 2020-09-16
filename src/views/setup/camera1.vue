@@ -411,7 +411,6 @@ export default {
           cam_name
         })
         .then(res => {
-          console.log(res)
           this.test_cam_loading = false
           const imgSrc = `${apiDomain}/${res.data.filepath}`
           Object.assign(this, {

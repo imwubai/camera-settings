@@ -552,7 +552,6 @@ export default {
         }
       }
       if (this.redStartX || this.redStartY || this.redEndX || this.redEndY) {
-        console.log(this.redStartX)
         if (this.redEndX > this.redStartX && this.redEndY > this.redStartY) {
           // 往右下角拖拉
           this.redPoint = {
@@ -592,7 +591,6 @@ export default {
             rightBottom: `${this.redStartX},${this.redEndY}`
           }
         }
-        console.log(this.redPoint)
       }
     },
     reset() {

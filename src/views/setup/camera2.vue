@@ -120,9 +120,7 @@ export default {
         moto_thres: [{ required: true, trigger: 'blur', validator: validateInput }],
         person_thres: [{ required: true, trigger: 'blur', validator: validateInput }],
         propotion: [{ required: true, trigger: 'blur', validator: validateInput }],
-        umbrella_thres: [{ required: true, trigger: 'blur', validator: validateInput }],
-        signal_color_value: [{ required: true, trigger: 'blur', validator: validateInput }],
-        direction_value: [{ required: true, trigger: 'blur', validator: validateInput }]
+        umbrella_thres: [{ required: true, trigger: 'blur', validator: validateInput }]
       },
       saveLoading: false,
       dialogVisible: false,
@@ -241,8 +239,6 @@ export default {
         if (valid) {
           this.saveLoading = true
           const reqData = {
-            direction: Number(this.form.direction_value),
-            signal_color: Number(this.form.signal_color_value),
             ...this.form
           }
           // 重新画线了

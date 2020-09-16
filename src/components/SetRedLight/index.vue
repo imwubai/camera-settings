@@ -306,7 +306,8 @@ export default {
       }
       // 初始绘制
       const img = new Image()
-      img.src = this.imgUrl
+      // img.src = this.imgUrl
+      img.src = require('../../assets/big_20200916105108_00001010.jpg')
       img.crossOrigin = 'Anonymous'
       img.onload = () => {
         if (this.isOriginImg) {

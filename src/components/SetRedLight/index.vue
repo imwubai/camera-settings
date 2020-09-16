@@ -9,7 +9,11 @@
         @click="switchopenDrawRight"
       >画右边线</el-button>
       <el-button size="small" :type="openDrawStop ? 'primary' : ''" @click="switchopenDrawStop">画停车线</el-button>
-      <el-button size="small" :type="openDrawRedStop ? 'primary' : ''" @click="switchopenDrawRedStop">画红灯线</el-button>
+      <el-button
+        size="small"
+        :type="openDrawRedStop ? 'primary' : ''"
+        @click="switchopenDrawRedStop"
+      >画红灯线</el-button>
       <el-button size="small" type="danger" @click="reset">重置</el-button>
     </div>
     <div class="box" :style="{width:`${imgInitialWidth}px`,height: `${imgInitialHeight}px`}">
@@ -126,6 +130,7 @@ export default {
       let stop = {} // 抛出去的停车线坐标
       let redStop = {} // 抛出去的红灯线坐标
       let red = {} // 抛出去的红灯坐标
+      console.log(this.redPoint)
       if (Object.keys(this.leftLintPoint).length > 0) {
         const { start: leftStart, end: leftEnd } = this.leftLintPoint
         const leftStartCoord = leftStart.split(',')
@@ -201,7 +206,10 @@ export default {
               this.realX(redStopStartCoord[0]),
               this.realY(redStopStartCoord[1])
             ],
-            end: [this.realX(redStopEndCoord[0]), this.realY(redStopEndCoord[1])]
+            end: [
+              this.realX(redStopEndCoord[0]),
+              this.realY(redStopEndCoord[1])
+            ]
           }
         } else {
           redStop = {
@@ -298,7 +306,9 @@ export default {
         this.leftCtx = document.getElementById('left-img').getContext('2d')
         this.rightCtx = document.getElementById('right-img').getContext('2d')
         this.stopCtx = document.getElementById('stop-img').getContext('2d')
-        this.redStopCtx = document.getElementById('redStop-img').getContext('2d')
+        this.redStopCtx = document
+          .getElementById('redStop-img')
+          .getContext('2d')
         this.redCtx = document.getElementById('red-img').getContext('2d')
       }
       // 初始绘制
@@ -327,7 +337,7 @@ export default {
             const { start, end } = this.leftLintPoint
             const startCoord = start.split(',')
             const endCoord = end.split(',')
-            this.drawLine(
+            this.leftLintPoint = this.drawLine(
               this.leftCtx,
               startCoord[0],
               startCoord[1],
@@ -341,7 +351,7 @@ export default {
             const { start, end } = this.rightLintPoint
             const startCoord = start.split(',')
             const endCoord = end.split(',')
-            this.drawLine(
+            this.rightLintPoint = this.drawLine(
               this.rightCtx,
               startCoord[0],
               startCoord[1],
@@ -355,7 +365,7 @@ export default {
             const { start, end } = this.stopLintPoint
             const startCoord = start.split(',')
             const endCoord = end.split(',')
-            this.drawLine(
+            this.stopLintPoint = this.drawLine(
               this.stopCtx,
               startCoord[0],
               startCoord[1],
@@ -369,7 +379,7 @@ export default {
             const { start, end } = this.redStopLintPoint
             const startCoord = start.split(',')
             const endCoord = end.split(',')
-            this.drawLine(
+            this.redStopLintPoint = this.drawLine(
               this.redStopCtx,
               startCoord[0],
               startCoord[1],
@@ -380,51 +390,68 @@ export default {
           }
           if (Object.keys(this.redPoint).length > 0) {
             // 绘制已有的红灯
-            const { leftTop, rightTop, leftBottom } = this.redPoint
+            const {
+              leftTop,
+              rightTop,
+              leftBottom,
+              rightBottom
+            } = this.redPoint
             const leftTopCoord = leftTop.split(',')
             const rightTopCoord = rightTop.split(',')
             const leftBottomCoord = leftBottom.split(',')
-            const redWidth = rightTopCoord[0] - leftTopCoord[0]
-            const redHeight = leftBottomCoord[1] - leftTopCoord[1]
+            const rightBottomCoord = rightBottom.split(',')
+            let newLeftTopCoordX = leftTopCoord[0]
+            let newLeftTopCoordY = leftTopCoord[1]
+            let newRightTopCoordX = rightTopCoord[0]
+            let newRightTopCoordY = rightTopCoord[1]
+            let newleftBottomCoordX = leftBottomCoord[0]
+            let newleftBottomCoordY = leftBottomCoord[1]
+            let newRightBottomCoordX = rightBottomCoord[0]
+            let newRightBottomCoordY = rightBottomCoord[1]
             this.redCtx.clearRect(0, 0, this.width, this.height)
             this.redCtx.strokeStyle = '#f00'
             this.redCtx.lineWidth = 2
             this.redCtx.beginPath()
             if (this.isOriginImg && !this.isDrawRedInTransform) {
               // 切换成原图，但绘制时为缩略图
-              this.redCtx.moveTo(
-                this.realX(leftTopCoord[0]),
-                this.realY(leftTopCoord[1])
-              )
-              this.redCtx.rect(
-                this.realX(leftTopCoord[0]),
-                this.realY(leftTopCoord[1]),
-                this.realX(redWidth),
-                this.realY(redHeight)
-              )
+              newLeftTopCoordX = this.realX(newLeftTopCoordX)
+              newLeftTopCoordY = this.realY(newLeftTopCoordY)
+              newRightTopCoordX = this.realX(newRightTopCoordX)
+              newRightTopCoordY = this.realY(newRightTopCoordY)
+              newleftBottomCoordX = this.realX(newleftBottomCoordX)
+              newleftBottomCoordY = this.realY(newleftBottomCoordY)
+              newRightBottomCoordX = this.realX(newRightBottomCoordX)
+              newRightBottomCoordY = this.realY(newRightBottomCoordY)
             } else if (!this.isOriginImg && this.isDrawRedInTransform) {
               //
-              this.redCtx.moveTo(
-                this.scaleX(leftTopCoord[0]),
-                this.scaleY(leftTopCoord[1])
-              )
-              this.redCtx.rect(
-                this.scaleX(leftTopCoord[0]),
-                this.scaleY(leftTopCoord[1]),
-                this.scaleX(redWidth),
-                this.scaleY(redHeight)
-              )
-            } else {
-              this.redCtx.moveTo(leftTopCoord[0], leftTopCoord[1])
-              this.redCtx.rect(
-                leftTopCoord[0],
-                leftTopCoord[1],
-                redWidth,
-                redHeight
-              )
+              newLeftTopCoordX = this.scaleX(newLeftTopCoordX)
+              newLeftTopCoordY = this.scaleY(newLeftTopCoordY)
+              newRightTopCoordX = this.scaleX(newRightTopCoordX)
+              newRightTopCoordY = this.scaleY(newRightTopCoordY)
+              newleftBottomCoordX = this.scaleX(newleftBottomCoordX)
+              newleftBottomCoordY = this.scaleY(newleftBottomCoordY)
+              newRightBottomCoordX = this.scaleX(newRightBottomCoordX)
+              newRightBottomCoordY = this.scaleY(newRightBottomCoordY)
             }
+            const redWidth = newRightTopCoordX - newLeftTopCoordX
+            const redHeight = newleftBottomCoordY - newLeftTopCoordY
+            this.redCtx.moveTo(newLeftTopCoordX, newLeftTopCoordY)
+            this.redCtx.rect(
+              newLeftTopCoordX,
+              newLeftTopCoordY,
+              redWidth,
+              redHeight
+            )
             this.redCtx.closePath()
             this.redCtx.stroke()
+            this.redPoint = {
+              leftTop: [newLeftTopCoordX, newLeftTopCoordY].join(','),
+              leftBottom: [newleftBottomCoordX, newleftBottomCoordY].join(','),
+              rightTop: [newRightTopCoordX, newRightTopCoordY].join(','),
+              rightBottom: [newRightBottomCoordX, newRightBottomCoordY].join(
+                ','
+              )
+            }
           }
         }, 0)
       }
@@ -435,20 +462,31 @@ export default {
       ctx.strokeStyle = '#f00'
       ctx.lineWidth = 2
       ctx.beginPath()
+      let newStartX = startX
+      let newStartY = startY
+      let newEndX = endX
+      let newEndY = endY
       if (this.isOriginImg && !this[`isDraw${type}InTransform`]) {
         // 切换成原图，但绘制时为缩略图
-        ctx.moveTo(this.realX(startX), this.realY(startY))
-        ctx.lineTo(this.realX(endX), this.realY(endY))
+        newStartX = this.realX(startX)
+        newStartY = this.realY(startY)
+        newEndX = this.realX(endX)
+        newEndY = this.realY(endY)
       } else if (!this.isOriginImg && this[`isDraw${type}InTransform`]) {
-        //
-        ctx.moveTo(this.scaleX(startX), this.scaleY(startY))
-        ctx.lineTo(this.scaleX(endX), this.scaleY(endY))
-      } else {
-        ctx.moveTo(startX, startY)
-        ctx.lineTo(endX, endY)
+        // 切换成缩略图，但绘制时为原图
+        newStartX = this.scaleX(startX)
+        newStartY = this.scaleY(startY)
+        newEndX = this.scaleX(endX)
+        newEndY = this.scaleY(endY)
       }
+      ctx.moveTo(newStartX, newStartY)
+      ctx.lineTo(newEndX, newEndY)
       ctx.closePath()
       ctx.stroke()
+      return {
+        start: [newStartX, newStartY].join(','),
+        end: [newEndX, newEndY].join(',')
+      }
     },
     handleSwitchScale() {
       // 切换缩放
@@ -552,7 +590,6 @@ export default {
         }
       }
       if (this.redStartX || this.redStartY || this.redEndX || this.redEndY) {
-        console.log(this.redStartX)
         if (this.redEndX > this.redStartX && this.redEndY > this.redStartY) {
           // 往右下角拖拉
           this.redPoint = {
@@ -592,7 +629,6 @@ export default {
             rightBottom: `${this.redStartX},${this.redEndY}`
           }
         }
-        console.log(this.redPoint)
       }
     },
     reset() {
@@ -654,12 +690,39 @@ export default {
     },
     handleMouseleave() {
       // 鼠标离开画布
-      this.enableMouseDown = false
+      if (this.enableMouseDown) {
+        this.enableMouseDown = false
+        if (this.openDrawLeft) {
+          this.leftCtx.clearRect(0, 0, this.width, this.height)
+          this.leftLintPoint = {}
+        }
+        if (this.openDrawRight) {
+          this.rightCtx.clearRect(0, 0, this.width, this.height)
+          this.rightLintPoint = {}
+        }
+        if (this.openDrawStop) {
+          this.stopCtx.clearRect(0, 0, this.width, this.height)
+          this.stopLintPoint = {}
+        }
+        if (this.openDrawRedStop) {
+          this.redStopCtx.clearRect(0, 0, this.width, this.height)
+          this.redStopLintPoint = {}
+        }
+        if (this.openDrawRed) {
+          this.redCtx.clearRect(0, 0, this.width, this.height)
+          this.redPoint = {}
+        }
+      }
     },
     handleMousemove(e) {
       // 鼠标移动
       if (this.enableMouseDown) {
-        if (this.openDrawLeft || this.openDrawRight || this.openDrawStop || this.openDrawRedStop) {
+        if (
+          this.openDrawLeft ||
+          this.openDrawRight ||
+          this.openDrawStop ||
+          this.openDrawRedStop
+        ) {
           // 画线
           if (this.openDrawLeft) {
             this.isDrawLeftInTransform = this.isOriginImg

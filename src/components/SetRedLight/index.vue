@@ -143,11 +143,8 @@ export default {
         } else {
           left = {
             // 左边线坐标
-            start: [
-              this.realX(leftStartCoord[0]),
-              this.realY(leftStartCoord[1])
-            ],
-            end: [this.realX(leftEndCoord[0]), this.realY(leftEndCoord[1])]
+            start: leftStartCoord,
+            end: leftEndCoord
           }
         }
       }
@@ -555,6 +552,7 @@ export default {
         }
       }
       if (this.redStartX || this.redStartY || this.redEndX || this.redEndY) {
+        console.log(this.redStartX)
         if (this.redEndX > this.redStartX && this.redEndY > this.redStartY) {
           // 往右下角拖拉
           this.redPoint = {
@@ -594,6 +592,7 @@ export default {
             rightBottom: `${this.redStartX},${this.redEndY}`
           }
         }
+        console.log(this.redPoint)
       }
     },
     reset() {

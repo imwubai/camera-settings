@@ -320,26 +320,26 @@ export default {
   },
   methods: {
     showSetRedLightModal(cam_name) {
-      this.imgUrl = 'https://w.wallhaven.cc/full/96/wallhaven-967zyk.jpg'
-      this.redLightVisible = true
-      // this.test_cam_loading = true
-      // axios
-      //   .post('/test_pic', {
-      //     cam_name
-      //   })
-      //   .then(res => {
-      //     this.test_cam_loading = false
-      //     const imgSrc = `${apiDomain}/${res.data.filepath}`
-      //     this.imgUrl = imgSrc
-      //     this.redLightVisible = true
-      //   })
-      //   .catch(a => {
-      //     this.test_cam_loading = false
-      //     this.$message({
-      //       message: '获取照片失败',
-      //       type: 'error'
-      //     })
-      //   })
+      // this.imgUrl = 'https://w.wallhaven.cc/full/96/wallhaven-967zyk.jpg'
+      // this.redLightVisible = true
+      this.test_cam_loading = true
+      axios
+        .post('/test_pic', {
+          cam_name
+        })
+        .then(res => {
+          this.test_cam_loading = false
+          const imgSrc = `${apiDomain}/${res.data.filepath}`
+          this.imgUrl = imgSrc
+          this.redLightVisible = true
+        })
+        .catch(a => {
+          this.test_cam_loading = false
+          this.$message({
+            message: '获取照片失败',
+            type: 'error'
+          })
+        })
     },
     saveSetRedLight() {
       // 保存设置的红灯
@@ -384,11 +384,11 @@ export default {
       }
       this.redLightVisible = false
       this.redLightResult = ref.result
-      console.log('左边线坐标：', left)
-      console.log('右边线坐标：', right)
-      console.log('停车线坐标：', stop)
-      console.log('红灯线坐标：', redStop)
-      console.log('红灯坐标：', red)
+      // console.log('左边线坐标：', JSON.stringify(left))
+      // console.log('右边线坐标：', JSON.stringify(right))
+      // console.log('停车线坐标：', JSON.stringify(stop))
+      // console.log('红灯线坐标：', JSON.stringify(redStop))
+      // console.log('红灯坐标：', JSON.stringify(red))
     },
     getDefaultData() {
       axios

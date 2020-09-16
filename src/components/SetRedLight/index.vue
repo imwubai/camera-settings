@@ -90,11 +90,6 @@ export default {
       stopEndY: 0,
       redStopEndY: 0,
       redEndY: 0,
-      isDrawLeftInTransform: false, // 是否在放大时绘制左边线
-      isDrawRightInTransform: false, // 是否在放大时绘制右边线
-      isDrawStopInTransform: false, // 是否在放大时绘制停车线
-      isDrawRedStopInTransform: false, // 是否在放大时绘制红灯线
-      isDrawRedInTransform: false, // 是否在放大时绘制红灯
       isOriginImg: false, // 是否为原图
       openDrawLeft: false, // 开启画左边线
       openDrawRight: false, // 开启画右边线
@@ -130,7 +125,6 @@ export default {
       let stop = {} // 抛出去的停车线坐标
       let redStop = {} // 抛出去的红灯线坐标
       let red = {} // 抛出去的红灯坐标
-      console.log(this.redPoint)
       if (Object.keys(this.leftLintPoint).length > 0) {
         const { start: leftStart, end: leftEnd } = this.leftLintPoint
         const leftStartCoord = leftStart.split(',')
@@ -252,6 +246,9 @@ export default {
   mounted() {
     this.initDraw(true)
   },
+  updated() {
+    // console.log(this.redPoint.leftTop)
+  },
   methods: {
     scaleX(currentX) {
       // X轴计算，防止浮点数影响
@@ -264,7 +261,7 @@ export default {
       return (
         (currentX * 10 ** index * (proportion * 10 ** index)) /
         (10 ** index * 10 ** index)
-      )
+      ).toFixed(2)
     },
     realX(currentX) {
       // X轴计算，防止浮点数影响
@@ -274,7 +271,7 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return (proportion * 10 ** index * currentX) / 10 ** index
+      return ((proportion * 10 ** index * currentX) / 10 ** index).toFixed(2)
     },
     scaleY(currentY) {
       // X轴计算，防止浮点数影响
@@ -287,7 +284,7 @@ export default {
       return (
         (currentY * 10 ** index * (proportion * 10 ** index)) /
         (10 ** index * 10 ** index)
-      )
+      ).toFixed(2)
     },
     realY(currentY) {
       // Y轴计算，防止浮点数影响
@@ -297,7 +294,7 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return (proportion * 10 ** index * currentY) / 10 ** index
+      return ((proportion * 10 ** index * currentY) / 10 ** index).toFixed(2)
     },
     initDraw(isInitial) {
       if (isInitial) {
@@ -313,8 +310,8 @@ export default {
       }
       // 初始绘制
       const img = new Image()
-      // img.src = this.imgUrl
-      img.src = require('../../assets/big_20200916105108_00001010.jpg')
+      img.src = this.imgUrl
+      // img.src = require('../../assets/big_20200916105108_00001010.jpg')
       img.crossOrigin = 'Anonymous'
       img.onload = () => {
         if (this.isOriginImg) {
@@ -342,8 +339,7 @@ export default {
               startCoord[0],
               startCoord[1],
               endCoord[0],
-              endCoord[1],
-              'Left'
+              endCoord[1]
             )
           }
           if (Object.keys(this.rightLintPoint).length > 0) {
@@ -356,8 +352,7 @@ export default {
               startCoord[0],
               startCoord[1],
               endCoord[0],
-              endCoord[1],
-              'Right'
+              endCoord[1]
             )
           }
           if (Object.keys(this.stopLintPoint).length > 0) {
@@ -370,8 +365,7 @@ export default {
               startCoord[0],
               startCoord[1],
               endCoord[0],
-              endCoord[1],
-              'Stop'
+              endCoord[1]
             )
           }
           if (Object.keys(this.redStopLintPoint).length > 0) {
@@ -384,8 +378,7 @@ export default {
               startCoord[0],
               startCoord[1],
               endCoord[0],
-              endCoord[1],
-              'RedStop'
+              endCoord[1]
             )
           }
           if (Object.keys(this.redPoint).length > 0) {
@@ -412,8 +405,8 @@ export default {
             this.redCtx.strokeStyle = '#f00'
             this.redCtx.lineWidth = 2
             this.redCtx.beginPath()
-            if (this.isOriginImg && !this.isDrawRedInTransform) {
-              // 切换成原图，但绘制时为缩略图
+            if (this.isOriginImg) {
+              // 放大
               newLeftTopCoordX = this.realX(newLeftTopCoordX)
               newLeftTopCoordY = this.realY(newLeftTopCoordY)
               newRightTopCoordX = this.realX(newRightTopCoordX)
@@ -422,8 +415,8 @@ export default {
               newleftBottomCoordY = this.realY(newleftBottomCoordY)
               newRightBottomCoordX = this.realX(newRightBottomCoordX)
               newRightBottomCoordY = this.realY(newRightBottomCoordY)
-            } else if (!this.isOriginImg && this.isDrawRedInTransform) {
-              //
+            } else {
+              // 缩小
               newLeftTopCoordX = this.scaleX(newLeftTopCoordX)
               newLeftTopCoordY = this.scaleY(newLeftTopCoordY)
               newRightTopCoordX = this.scaleX(newRightTopCoordX)
@@ -456,7 +449,7 @@ export default {
         }, 0)
       }
     },
-    drawLine(ctx, startX, startY, endX, endY, type) {
+    drawLine(ctx, startX, startY, endX, endY, isDraw) {
       // 画线
       ctx.clearRect(0, 0, this.width, this.height)
       ctx.strokeStyle = '#f00'
@@ -466,18 +459,20 @@ export default {
       let newStartY = startY
       let newEndX = endX
       let newEndY = endY
-      if (this.isOriginImg && !this[`isDraw${type}InTransform`]) {
-        // 切换成原图，但绘制时为缩略图
-        newStartX = this.realX(startX)
-        newStartY = this.realY(startY)
-        newEndX = this.realX(endX)
-        newEndY = this.realY(endY)
-      } else if (!this.isOriginImg && this[`isDraw${type}InTransform`]) {
-        // 切换成缩略图，但绘制时为原图
-        newStartX = this.scaleX(startX)
-        newStartY = this.scaleY(startY)
-        newEndX = this.scaleX(endX)
-        newEndY = this.scaleY(endY)
+      if (!isDraw) {
+        if (this.isOriginImg) {
+          // 放大
+          newStartX = this.realX(startX)
+          newStartY = this.realY(startY)
+          newEndX = this.realX(endX)
+          newEndY = this.realY(endY)
+        } else {
+          // 缩小
+          newStartX = this.scaleX(startX)
+          newStartY = this.scaleY(startY)
+          newEndX = this.scaleX(endX)
+          newEndY = this.scaleY(endY)
+        }
       }
       ctx.moveTo(newStartX, newStartY)
       ctx.lineTo(newEndX, newEndY)
@@ -546,10 +541,11 @@ export default {
     save() {
       // 保存绘制结果
       if (
-        this.leftStartX ||
-        this.leftStartY ||
-        this.leftEndX ||
-        this.leftEndY
+        (this.leftStartX ||
+          this.leftStartY ||
+          this.leftEndX ||
+          this.leftEndY) &&
+        this.openDrawLeft
       ) {
         this.leftLintPoint = {
           start: `${this.leftStartX},${this.leftStartY}`,
@@ -557,10 +553,11 @@ export default {
         }
       }
       if (
-        this.rightStartX ||
-        this.rightStartY ||
-        this.rightEndX ||
-        this.rightEndY
+        (this.rightStartX ||
+          this.rightStartY ||
+          this.rightEndX ||
+          this.rightEndY) &&
+        this.openDrawRight
       ) {
         this.rightLintPoint = {
           start: `${this.rightStartX},${this.rightStartY}`,
@@ -568,10 +565,11 @@ export default {
         }
       }
       if (
-        this.stopStartX ||
-        this.stopStartY ||
-        this.stopEndX ||
-        this.stopEndY
+        (this.stopStartX ||
+          this.stopStartY ||
+          this.stopEndX ||
+          this.stopEndY) &&
+        this.openDrawStop
       ) {
         this.stopLintPoint = {
           start: `${this.stopStartX},${this.stopStartY}`,
@@ -579,17 +577,21 @@ export default {
         }
       }
       if (
-        this.redStopStartX ||
-        this.redStopStartY ||
-        this.redStopEndX ||
-        this.redStopEndY
+        (this.redStopStartX ||
+          this.redStopStartY ||
+          this.redStopEndX ||
+          this.redStopEndY) &&
+        this.openDrawRedStop
       ) {
         this.redStopLintPoint = {
           start: `${this.redStopStartX},${this.redStopStartY}`,
           end: `${this.redStopEndX},${this.redStopEndY}`
         }
       }
-      if (this.redStartX || this.redStartY || this.redEndX || this.redEndY) {
+      if (
+        (this.redStartX || this.redStartY || this.redEndX || this.redEndY) &&
+        this.openDrawRed
+      ) {
         if (this.redEndX > this.redStartX && this.redEndY > this.redStartY) {
           // 往右下角拖拉
           this.redPoint = {
@@ -725,49 +727,44 @@ export default {
         ) {
           // 画线
           if (this.openDrawLeft) {
-            this.isDrawLeftInTransform = this.isOriginImg
             this.drawLine(
               this.leftCtx,
               this.leftStartX,
               this.leftStartY,
               e.offsetX,
               e.offsetY,
-              'Left'
+              true
             )
           } else if (this.openDrawRight) {
-            this.isDrawRightInTransform = this.isOriginImg
             this.drawLine(
               this.rightCtx,
               this.rightStartX,
               this.rightStartY,
               e.offsetX,
               e.offsetY,
-              'Right'
+              true
             )
           } else if (this.openDrawStop) {
-            this.isDrawStopInTransform = this.isOriginImg
             this.drawLine(
               this.stopCtx,
               this.stopStartX,
               this.stopStartY,
               e.offsetX,
               e.offsetY,
-              'Stop'
+              true
             )
           } else if (this.openDrawRedStop) {
-            this.isDrawRedStopInTransform = this.isOriginImg
             this.drawLine(
               this.redStopCtx,
               this.redStopStartX,
               this.redStopStartY,
               e.offsetX,
               e.offsetY,
-              'RedStop'
+              true
             )
           }
         } else if (this.openDrawRed) {
           // 画框
-          this.isDrawRedInTransform = this.isOriginImg
           this.redCtx.clearRect(0, 0, this.width, this.height)
           this.redCtx.strokeStyle = '#f00'
           this.redCtx.lineWidth = 2

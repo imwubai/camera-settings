@@ -258,10 +258,10 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return (
+      return Number((
         (currentX * 10 ** index * (proportion * 10 ** index)) /
         (10 ** index * 10 ** index)
-      ).toFixed(2)
+      ).toFixed(2))
     },
     realX(currentX) {
       // X轴计算，防止浮点数影响
@@ -271,7 +271,7 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return ((proportion * 10 ** index * currentX) / 10 ** index).toFixed(2)
+      return Number(((proportion * 10 ** index * currentX) / 10 ** index).toFixed(2))
     },
     scaleY(currentY) {
       // X轴计算，防止浮点数影响
@@ -281,10 +281,10 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return (
+      return Number((
         (currentY * 10 ** index * (proportion * 10 ** index)) /
         (10 ** index * 10 ** index)
-      ).toFixed(2)
+      ).toFixed(2))
     },
     realY(currentY) {
       // Y轴计算，防止浮点数影响
@@ -294,7 +294,7 @@ export default {
       if (proportionStr.includes('.')) {
         index = proportionStr.split('.')[1].length + 1
       }
-      return ((proportion * 10 ** index * currentY) / 10 ** index).toFixed(2)
+      return Number(((proportion * 10 ** index * currentY) / 10 ** index).toFixed(2))
     },
     initDraw(isInitial) {
       if (isInitial) {

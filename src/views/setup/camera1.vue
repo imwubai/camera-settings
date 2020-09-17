@@ -320,7 +320,6 @@ export default {
   },
   methods: {
     showSetRedLightModal(cam_name) {
-      // this.imgUrl = 'https://w.wallhaven.cc/full/96/wallhaven-967zyk.jpg'
       // this.redLightVisible = true
       this.test_cam_loading = true
       axios
@@ -447,28 +446,24 @@ export default {
               (
                 (left.end[0] - left.start[0]) /
                 (left.end[1] - left.start[1])
-              ).toFixed(2)
-            )
+              )
+            ).toFixed(2)
             const right_slope = Number(
               (
                 (right.end[0] - right.start[0]) /
                 (right.end[1] - right.start[1])
-              ).toFixed(2)
-            )
+              )
+            ).toFixed(2)
             Object.assign(reqData, {
-              signal_left: Number(red.leftTop[0].toFixed(0)), // 红绿灯左上角X坐标
-              signal_top: Number(red.leftTop[1].toFixed(0)), // 红绿灯左上角Y坐标
-              signal_right: Number(red.rightBottom[0].toFixed(0)), // 红绿灯右下角X坐标
-              signal_bottom: Number(red.rightBottom[1].toFixed(0)), // 红绿灯右下角Y坐标
-              red_line: Number(redStop.start[1].toFixed(0)), // 红灯线起点Y坐标
-              overline: Number(stop.start[1].toFixed(0)), // 停车线起点Y坐标
-              left_x: Number(
-                (left.start[0] - left_slope * left.start[1]).toFixed(0)
-              ),
+              signal_left: Number(red.leftTop[0]).toFixed(0), // 红绿灯左上角X坐标
+              signal_top: Number(red.leftTop[1]).toFixed(0), // 红绿灯左上角Y坐标
+              signal_right: Number(red.rightBottom[0]).toFixed(0), // 红绿灯右下角X坐标
+              signal_bottom: Number(red.rightBottom[1]).toFixed(0), // 红绿灯右下角Y坐标
+              red_line: Number(redStop.start[1]).toFixed(0), // 红灯线起点Y坐标
+              overline: Number(stop.start[1]).toFixed(0), // 停车线起点Y坐标
+              left_x: Number((left.start[0] - left_slope * left.start[1])).toFixed(0),
               left_slope,
-              right_x: Number(
-                (right.start[0] - right_slope * right.start[1]).toFixed(0)
-              ),
+              right_x: Number((right.start[0] - right_slope * right.start[1])).toFixed(0),
               right_slope
             })
           }

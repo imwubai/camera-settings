@@ -9,7 +9,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="摄像机1 RTSP名称" prop="big_cam_name">
             <el-input v-model="form.big_cam_name" clearable />
           </el-form-item>
@@ -32,7 +32,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="摄像机3 RTSP名称" prop="small_cam_name">
             <el-input v-model="form.small_cam_name" clearable />
           </el-form-item>

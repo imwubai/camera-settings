@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 <template>
   <div class="app-container">
     <el-form ref="form" :model="form" label-width="160px" :rules="formRules">
@@ -5,6 +6,13 @@
         <el-col :span="8">
           <el-form-item label="路口方位" prop="location">
             <el-input v-model="form.location" maxlength="50" clearable />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="路口方位编码(英文)" prop="id">
+            <el-input v-model="form.id" maxlength="50" clearable />
           </el-form-item>
         </el-col>
       </el-row>
@@ -33,6 +41,22 @@
       </el-row>
       <el-row>
         <el-col :span="12">
+          <el-form-item label="摄像机2 RTSP名称" prop="middle_cam_name">
+            <el-input v-model="form.middle_cam_name" clearable />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-button
+            type="primary"
+            plain
+            class="test_btn"
+            :loading="test_cam_loading"
+            @click="showDialog(form.middle_cam_name)"
+          >测试摄像机2</el-button>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
           <el-form-item label="摄像机3 RTSP名称" prop="small_cam_name">
             <el-input v-model="form.small_cam_name" clearable />
           </el-form-item>
@@ -48,119 +72,11 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="8">
-          <el-form-item label="图片上下比例" prop="propotion">
-            <el-input-number
-              v-model="form.propotion"
-              controls-position="right"
-              :min="1"
-              :max="100"
-              :step="1"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="抓拍间隔" prop="detect_interval">
-            <el-input-number
-              v-model="form.detect_interval"
-              controls-position="right"
-              :min="1"
-              :max="100"
-              :step="1"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="摩托识别置信度" prop="moto_thres">
-            <el-input-number
-              v-model="form.moto_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="自行车识别置信度" prop="bike_thres">
-            <el-input-number
-              v-model="form.bike_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="人脸识别置信度" prop="person_thres">
-            <el-input-number
-              v-model="form.person_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="脸部识别置信度" prop="face_thres">
-            <el-input-number
-              v-model="form.face_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="头盔识别置信度" prop="helmet_thres">
-            <el-input-number
-              v-model="form.helmet_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="伞具识别置信度" prop="umbrella_thres">
-            <el-input-number
-              v-model="form.umbrella_thres"
-              controls-position="right"
-              :min="0"
-              :max="1"
-              :step="0.1"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="交通灯颜色" prop="signal_color">
-            <el-select v-model="form.signal_color" placeholder="请选择">
+            <el-select v-model="signal_color" multiple placeholder="请选择">
               <el-option
                 v-for="item in signal_color_array"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="摄像机方位" prop="direction">
-            <el-select v-model="form.direction" placeholder="请选择">
-              <el-option
-                v-for="item in direction_array"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -180,10 +96,12 @@
     <el-dialog
       title="测试照片"
       :visible.sync="dialogVisible"
-      width="1000px"
+      width="1040px"
       @closed="handleClose"
     >
-      <img :src="imgSrc" class="dialogimg">
+      <div class="dialogimgBox">
+        <img width="1000" :src="imgSrc" class="dialogimg">
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button
           type="primary"
@@ -219,10 +137,30 @@ export default {
   data() {
     const validateInput = (rule, value, callback) => {
       /* eslint-disable eqeqeq */
-      if (value != 0 && !value) {
-        callback(new Error('请输入必填项'))
-      } else {
+      if (value === 0) {
         callback()
+      } else {
+        if (value) {
+          callback()
+        } else {
+          callback(new Error('请输入必填项'))
+        }
+      }
+    }
+    const validateId = (rule, value, callback) => {
+      /* eslint-disable eqeqeq */
+      if (/^[A-Za-z0-9]{1,50}$/.test(value)) {
+        callback()
+      } else {
+        callback(new Error('请输入英文和数字'))
+      }
+    }
+    const validateColor = (rule, value, callback) => {
+      /* eslint-disable eqeqeq */
+      if (this.signal_color.length > 0) {
+        callback()
+      } else {
+        callback(new Error('请输入必填项'))
       }
     }
     return {
@@ -230,41 +168,23 @@ export default {
         big_cam_name: [
           { required: true, trigger: 'blur', validator: validateInput }
         ],
-        bike_thres: [
+        middle_cam_name: [
           { required: true, trigger: 'blur', validator: validateInput }
         ],
         detect_interval: [
           { required: true, trigger: 'blur', validator: validateInput }
         ],
-        face_thres: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
-        helmet_thres: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
         location: [
           { required: true, trigger: 'blur', validator: validateInput }
         ],
-        moto_thres: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
-        person_thres: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
-        propotion: [
-          { required: true, trigger: 'blur', validator: validateInput }
+        id: [
+          { required: true, trigger: 'blur', validator: validateId }
         ],
         small_cam_name: [
           { required: true, trigger: 'blur', validator: validateInput }
         ],
-        umbrella_thres: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
         signal_color: [
-          { required: true, trigger: 'blur', validator: validateInput }
-        ],
-        direction: [
-          { required: true, trigger: 'blur', validator: validateInput }
+          { required: true, trigger: 'blur', validator: validateColor }
         ]
       },
       saveLoading: false,
@@ -273,49 +193,66 @@ export default {
       test_cam_loading: false,
       signal_color_array: [
         {
-          value: 0,
-          label: '红灯'
-        },
-        {
           value: 1,
-          label: '黄灯'
+          label: '红色'
         },
         {
           value: 2,
-          label: '绿灯'
-        }
-      ],
-      direction_array: [
-        {
-          value: 0,
-          label: '对脸'
+          label: '橙色'
         },
         {
-          value: 1,
-          label: '对背'
+          value: 4,
+          label: '黄色'
+        },
+        {
+          value: 8,
+          label: '绿色'
+        },
+        {
+          value: 16,
+          label: '青色'
+        },
+        {
+          value: 32,
+          label: '蓝色'
+        },
+        {
+          value: 64,
+          label: '紫色'
+        },
+        {
+          value: 128,
+          label: '黑色'
         }
       ],
       imgUrl: '', // 测试相机返回的图片地址 用来画线
       redLightVisible: false, // 设置红灯弹窗visible
       redLightResult: {}, // 画线返回的结果
+      positionNumber: 0, // 四个路口方位 1 - 4
+      signal_color: [], // 交通灯颜色
       form: {
-        big_cam_name: '',
-        bike_thres: '',
-        detect_interval: 2,
-        face_thres: '',
-        helmet_thres: '',
         location: '',
-        moto_thres: '',
-        person_thres: '',
-        propotion: 50,
-        small_cam_name: '',
-        umbrella_thres: '',
-        signal_color: 0,
-        direction: 0
+        id: '',
+        big_cam_name: '',
+        middle_cam_name: '',
+        small_cam_name: ''
       }
     }
   },
   mounted: function() {
+    const { path } = this.$route
+    if (path.includes('camera1')) {
+      this.positionNumber = 1
+    }
+    if (path.includes('camera2')) {
+      this.positionNumber = 2
+    }
+    if (path.includes('camera3')) {
+      this.positionNumber = 3
+    }
+    if (path.includes('camera4')) {
+      this.positionNumber = 4
+    }
     this.getDefaultData()
   },
   methods: {
@@ -344,22 +281,22 @@ export default {
       // 保存设置的红灯
       const ref = this.$refs.setRedLightRef
       const {
-        result: { left, right, stop, redStop, red }
+        result: { stop, redStop, red }
       } = ref
-      if (Object.keys(left).length === 0) {
-        this.$message({
-          type: 'warning',
-          message: '未画左边线'
-        })
-        return
-      }
-      if (Object.keys(right).length === 0) {
-        this.$message({
-          type: 'warning',
-          message: '未画右边线'
-        })
-        return
-      }
+      // if (Object.keys(left).length === 0) {
+      //   this.$message({
+      //     type: 'warning',
+      //     message: '未画左边线'
+      //   })
+      //   return
+      // }
+      // if (Object.keys(right).length === 0) {
+      //   this.$message({
+      //     type: 'warning',
+      //     message: '未画右边线'
+      //   })
+      //   return
+      // }
       if (Object.keys(stop).length === 0) {
         this.$message({
           type: 'warning',
@@ -391,9 +328,21 @@ export default {
     },
     getDefaultData() {
       axios
-        .post('/get_big_cam')
+        .post('/get_cam/' + this.positionNumber)
         .then(res => {
           Object.assign(this.form, res.data)
+          // 获取默认选中的红绿灯颜色
+          const arr = [128, 64, 32, 16, 8, 4, 2, 1]
+          function calcNumbers(num) {
+            const numbers = []
+            for (const value of arr) {
+              if ((num & value) == value) {
+                numbers.push(value)
+              }
+            }
+            return numbers
+          }
+          this.signal_color = calcNumbers(res.data.signal_color)
           // this.form.big_cam_name = '/root/part2.avi'
         })
         .catch(a => {
@@ -404,6 +353,10 @@ export default {
         })
     },
     showDialog(cam_name) {
+      if (!cam_name) {
+        this.$message.error('请先输入相机名称')
+        return
+      }
       this.test_cam_loading = true
       axios
         .post('/test_pic', {
@@ -416,7 +369,20 @@ export default {
             dialogVisible: true,
             imgSrc
           })
-          // Object.assign(this.form, res.data)
+          setTimeout(() => {
+            for (let i = 1; i < 4; i++) {
+              const div = document.createElement('div')
+              div.className = 'horizontal'
+              div.style.top = res.data['horizontal' + i] + '%'
+              document.querySelector('.dialogimgBox').appendChild(div)
+            }
+            for (let i = 1; i < 5; i++) {
+              const div = document.createElement('div')
+              div.className = 'vertical'
+              div.style.left = res.data['vertical' + i] + '%'
+              document.querySelector('.dialogimgBox').appendChild(div)
+            }
+          }, 100)
         })
         .catch(a => {
           this.test_cam_loading = false
@@ -430,50 +396,53 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.saveLoading = true
+          // 交通灯颜色值相加
+          const colorSum = this.signal_color.reduce(function(prev, cur, index, arr) {
+            return prev + cur
+          })
           const reqData = {
-            // direction: this.form.direction,
-            // signal_color: this.form.signal_color,
-            ...this.form
+            ...this.form,
+            signal_color: colorSum
           }
           // 重新画线了
           if (Object.keys(this.redLightResult).length > 0) {
-            const { left, right, stop, red, redStop } = this.redLightResult
+            const { stop, red, redStop } = this.redLightResult
             // stop: 停车线
             // redStop: 红灯线
             // 计算方法：已知图中两点（x1, y1)(x2, y2) , left_slope = (x2 - x1) / (y2 - y1)
             // left_x = x1 - left_slope * y1
-            const left_slope = Number(
-              (
-                (left.end[0] - left.start[0]) /
-                (left.end[1] - left.start[1])
-              ).toFixed(2)
-            )
-            const right_slope = Number(
-              (
-                (right.end[0] - right.start[0]) /
-                (right.end[1] - right.start[1])
-              ).toFixed(2)
-            )
+            // const left_slope = Number(
+            //   (
+            //     (left.end[0] - left.start[0]) /
+            //     (left.end[1] - left.start[1])
+            //   ).toFixed(2)
+            // )
+            // const right_slope = Number(
+            //   (
+            //     (right.end[0] - right.start[0]) /
+            //     (right.end[1] - right.start[1])
+            //   ).toFixed(2)
+            // )
             Object.assign(reqData, {
               signal_left: Number(red.leftTop[0].toFixed(0)), // 红绿灯左上角X坐标
               signal_top: Number(red.leftTop[1].toFixed(0)), // 红绿灯左上角Y坐标
               signal_right: Number(red.rightBottom[0].toFixed(0)), // 红绿灯右下角X坐标
               signal_bottom: Number(red.rightBottom[1].toFixed(0)), // 红绿灯右下角Y坐标
               red_line: Number(redStop.start[1].toFixed(0)), // 红灯线起点Y坐标
-              overline: Number(stop.start[1].toFixed(0)), // 停车线起点Y坐标
-              left_x: Number(
-                (left.start[0] - left_slope * left.start[1]).toFixed(0)
-              ),
-              left_slope,
-              right_x: Number(
-                (right.start[0] - right_slope * right.start[1]).toFixed(0)
-              ),
-              right_slope
+              overline: Number(stop.start[1].toFixed(0)) // 停车线起点Y坐标
+              // left_x: Number(
+              //   (left.start[0] - left_slope * left.start[1]).toFixed(0)
+              // ),
+              // left_slope,
+              // right_x: Number(
+              //   (right.start[0] - right_slope * right.start[1]).toFixed(0)
+              // ),
+              // right_slope
             })
           }
 
           axios
-            .post('/set_big_cam', reqData)
+            .post('/set_cam/' + this.positionNumber, reqData)
             .then(res => {
               this.saveLoading = false
               this.$message({
@@ -499,11 +468,35 @@ export default {
 </script>
 
 <style lang="scss">
+.dialogimgBox {
+  position: relative;
+  width: 1000px;
+  overflow: hidden;
+}
+.horizontal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #f00;
+}
+.vertical {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background-color: #f00;
+}
 .dialogimg {
-  max-width: 960px;
+  max-width: 1000px;
 }
 .test_btn {
   margin-left: 20px;
+}
+.el-select {
+  width: 100%;
 }
 .red-light-dialog {
   .el-dialog {

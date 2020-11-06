@@ -77,15 +77,39 @@ export const constantRoutes = [
       {
         path: 'camera1',
         name: 'camera',
-        component: () => import('@/views/setup/camera1'),
-        meta: { title: '摄像机1设置' }
+        component: () => import('@/views/setup/camera'),
+        meta: { title: '方位一设置' }
       },
       {
         path: 'camera2',
         name: 'camera',
-        component: () => import('@/views/setup/camera2'),
-        meta: { title: '摄像机2设置' }
+        component: () => import('@/views/setup/camera'),
+        meta: { title: '方位二设置' }
+      },
+      {
+        path: 'camera3',
+        name: 'camera',
+        component: () => import('@/views/setup/camera'),
+        meta: { title: '方位三设置' }
+      },
+      {
+        path: 'camera4',
+        name: 'camera',
+        component: () => import('@/views/setup/camera'),
+        meta: { title: '方位四设置' }
+      },
+      {
+        path: 'positionparam',
+        name: 'positionparam',
+        component: () => import('@/views/setup/positionparam'),
+        meta: { title: '方位参数设置' }
       }
+      // {
+      //   path: 'camera2',
+      //   name: 'camera',
+      //   component: () => import('@/views/setup/camera2'),
+      //   meta: { title: '摄像机2设置' }
+      // }
       // {
       //   path: 'cameraline',
       //   name: 'cameraline',

@@ -2,12 +2,12 @@
   <div class="set-red-light">
     <div class="switch-buttons">
       <el-button size="small" :type="openDrawRed ? 'primary' : ''" @click="switchopenDrawRed">画红灯位置</el-button>
-      <el-button size="small" :type="openDrawLeft ? 'primary' : ''" @click="switchopenDrawLeft">画左边线</el-button>
-      <el-button
+      <!-- <el-button size="small" :type="openDrawLeft ? 'primary' : ''" @click="switchopenDrawLeft">画左边线</el-button> -->
+      <!-- <el-button
         size="small"
         :type="openDrawRight ? 'primary' : ''"
         @click="switchopenDrawRight"
-      >画右边线</el-button>
+      >画右边线</el-button> -->
       <el-button size="small" :type="openDrawStop ? 'primary' : ''" @click="switchopenDrawStop">画停车线</el-button>
       <el-button
         size="small"

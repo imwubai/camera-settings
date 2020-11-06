@@ -1,26 +1,98 @@
 <template>
   <div class="app-container">
-    <el-row>
-      <el-col :span="24">
-        <el-form ref="form" :model="form" label-width="160px">
+    <el-form ref="form" :model="form" label-width="160px">
+      <div class="title">方位一</div>
+      <el-row>
+        <el-col :span="20">
           <el-form-item label="摄像机1">
-            <el-radio-group v-model="form.big_cam_stat" size="medium" @change="radioChange">
+            <el-radio-group v-model="form.value[0].big_cam_stat" size="medium" @change="radioChange">
               <el-radio label="running" border>启动</el-radio>
               <el-radio label="stoped" border>关闭</el-radio>
             </el-radio-group>
           </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="20">
           <el-form-item label="摄像机2">
-            <el-radio-group v-model="form.middle_cam_stat" size="medium" @change="radioChange">
+            <el-radio-group v-model="form.value[0].middle_cam_stat" size="medium" @change="radioChange">
               <el-radio label="running" border>启动</el-radio>
               <el-radio label="stoped" border>关闭</el-radio>
             </el-radio-group>
           </el-form-item>
+        </el-col>
+      </el-row>
+      <div class="title">方位二</div>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机1">
+            <el-radio-group v-model="form.value[1].big_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机2">
+            <el-radio-group v-model="form.value[1].middle_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <div class="title">方位三</div>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机1">
+            <el-radio-group v-model="form.value[2].big_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机2">
+            <el-radio-group v-model="form.value[2].middle_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <div class="title">方位四</div>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机1">
+            <el-radio-group v-model="form.value[3].big_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="摄像机2">
+            <el-radio-group v-model="form.value[3].middle_cam_stat" size="medium" @change="radioChange">
+              <el-radio label="running" border>启动</el-radio>
+              <el-radio label="stoped" border>关闭</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
           <el-form-item>
             <el-button type="primary" :loading="saveLoading" @click="onSubmit">保存</el-button>
           </el-form-item>
-        </el-form>
-      </el-col>
-    </el-row>
+        </el-col>
+      </el-row>
+    </el-form>
   </div>
 </template>
 
@@ -40,8 +112,24 @@ export default {
     return {
       saveLoading: false,
       form: {
-        big_cam_stat: '',
-        middle_cam_stat: ''
+        value: [
+          {
+            big_cam_stat: '',
+            middle_cam_stat: ''
+          },
+          {
+            big_cam_stat: '',
+            middle_cam_stat: ''
+          },
+          {
+            big_cam_stat: '',
+            middle_cam_stat: ''
+          },
+          {
+            big_cam_stat: '',
+            middle_cam_stat: ''
+          }
+        ]
       }
     }
   },
@@ -50,12 +138,39 @@ export default {
   },
   methods: {
     getDefaultData() {
-      axios.post('/get_sys_stat').then((res) => {
-        this.form.big_cam_stat = res.data.big_cam_stat
-        this.form.middle_cam_stat = res.data.middle_cam_stat
+      axios.post('/check_stat/1').then((res) => {
+        this.form.value[0].big_cam_stat = res.data.big_cam_stat
+        this.form.value[0].middle_cam_stat = res.data.middle_cam_stat
       }).catch((a) => {
         this.$message({
-          message: '获取数据异常',
+          message: '获取方位一数据异常',
+          type: 'error'
+        })
+      })
+      axios.post('/check_stat/2').then((res) => {
+        this.form.value[1].big_cam_stat = res.data.big_cam_stat
+        this.form.value[1].middle_cam_stat = res.data.middle_cam_stat
+      }).catch((a) => {
+        this.$message({
+          message: '获取方位二数据异常',
+          type: 'error'
+        })
+      })
+      axios.post('/check_stat/3').then((res) => {
+        this.form.value[2].big_cam_stat = res.data.big_cam_stat
+        this.form.value[2].middle_cam_stat = res.data.middle_cam_stat
+      }).catch((a) => {
+        this.$message({
+          message: '获取方位三数据异常',
+          type: 'error'
+        })
+      })
+      axios.post('/check_stat/4').then((res) => {
+        this.form.value[3].big_cam_stat = res.data.big_cam_stat
+        this.form.value[3].middle_cam_stat = res.data.middle_cam_stat
+      }).catch((a) => {
+        this.$message({
+          message: '获取方位四数据异常',
           type: 'error'
         })
       })
@@ -65,21 +180,29 @@ export default {
     },
     onSubmit() {
       this.saveLoading = true
-      axios.post('/enable_proc', {
-        big_cam: (this.form.big_cam_stat === 'running' ? 1 : 0),
-        middle_cam: (this.form.middle_cam_stat === 'running' ? 1 : 0)
-      }).then((res) => {
-        this.saveLoading = false
-        this.$message({
-          message: '设置成功',
-          type: 'success'
+      Promise.all([
+        axios.post('/ctl_proc/1', {
+          big_cam: (this.form.value[0].big_cam_stat === 'running' ? 1 : 0),
+          middle_cam: (this.form.value[0].middle_cam_stat === 'running' ? 1 : 0)
+        }),
+        axios.post('/ctl_proc/2', {
+          big_cam: (this.form.value[1].big_cam_stat === 'running' ? 1 : 0),
+          middle_cam: (this.form.value[1].middle_cam_stat === 'running' ? 1 : 0)
+        }),
+        axios.post('/ctl_proc/3', {
+          big_cam: (this.form.value[2].big_cam_stat === 'running' ? 1 : 0),
+          middle_cam: (this.form.value[2].middle_cam_stat === 'running' ? 1 : 0)
+        }),
+        axios.post('/ctl_proc/4', {
+          big_cam: (this.form.value[3].big_cam_stat === 'running' ? 1 : 0),
+          middle_cam: (this.form.value[3].middle_cam_stat === 'running' ? 1 : 0)
         })
-      }).catch((a) => {
+      ]).then(() => {
         this.saveLoading = false
-        this.$message({
-          message: '获取数据异常',
-          type: 'error'
-        })
+        this.$message.success('设置成功')
+      }).catch((e) => {
+        this.saveLoading = false
+        this.$message.error(e.response.data.returnMessage || '设置失败')
       })
     }
   }
@@ -87,4 +210,12 @@ export default {
 </script>
 
 <style scoped>
+.title {
+  width: 160px;
+  line-height: 40px;
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+  text-indent: 30px;
+}
 </style>

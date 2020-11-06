@@ -17,8 +17,8 @@
       highlight-current-row
     >
       <el-table-column type="index" label="序号" width="50" />
-      <el-table-column prop="camera_id" label="摄像机编号" width="180" />
-      <el-table-column prop="illegal" label="违法行为" width="180">
+      <el-table-column prop="code" label="车牌号" width="200" />
+      <el-table-column prop="illegal" label="违法行为" width="200">
         <template slot-scope="scope">
           <div>{{ renderIllegal(scope.row) }}</div>
         </template>
@@ -85,7 +85,15 @@ export default {
       dialogVisible: false,
       listLoading: true,
       autoRefresh: true, // 自动刷新
-      tableData: []
+      tableData: [],
+      colorMap: {
+        person: '#4C10AE',
+        motorbike: '#f00',
+        bicycle: '#00B554',
+        head: '#FFA100',
+        helmet: '#3914AF',
+        umbrella: '#F3FC00'
+      }
     }
   },
   mounted() {
@@ -124,37 +132,36 @@ export default {
     viewImage(row, type) {
       if (type === 'big') {
         this.isLookBigImg = true
-        // const currentObjects = row.objects || []
-        // setTimeout(() => {
-        //   const img = document.createElement('img')
-        //   img.src = `${apiDomain}/static/${row.filename}`
-        //   img.style.width = '1000px'
-        //   img.onload = e => {
-        //     currentObjects.forEach(item => {
-        //       const { naturalWidth, clientWidth } = e.path[0]
-        //       const proportion = (naturalWidth / clientWidth).toFixed(2)
-        //       const boxWidth = item.right - item.left
-        //       const boxheight = item.bottom - item.top
-        //       const div = document.createElement('div')
-        //       div.setAttribute('class', 'bigImgredBox')
-        //       div.style.position = 'absolute'
-        //       div.style.left = (item.left / proportion).toFixed(2) + 'px'
-        //       div.style.top = (item.top / proportion).toFixed(2) + 'px'
-        //       div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
-        //       div.style.height = (boxheight / proportion).toFixed(2) + 'px'
-        //       div.style.border = '2px solid #f00'
-        //       document.querySelector('#dialog_img_box').appendChild(div)
-        //     })
-        //   }
-        //   document.querySelector('#dialog_img_box').appendChild(img)
-        // }, 100)
+        const { colorMap } = this
         setTimeout(() => {
           (row.objects || []).forEach((item) => {
             if (item.file) {
+              const divbox = document.createElement('div')
+              divbox.style.position = 'relative'
               const img = document.createElement('img')
               img.src = `${apiDomain}/static/tmpfs/${item.file}`
               img.style.width = '1000px'
-              document.querySelector('#dialog_img_box').appendChild(img)
+              img.onload = e => {
+                if (item.unit) {
+                  (item.unit || []).forEach(item => {
+                    const { naturalWidth, clientWidth } = e.path[0]
+                    const proportion = (naturalWidth / clientWidth).toFixed(2)
+                    const boxWidth = item.right - item.left
+                    const boxheight = item.bottom - item.top
+                    const div = document.createElement('div')
+                    div.setAttribute('class', 'bigImgredBox')
+                    div.style.position = 'absolute'
+                    div.style.left = (item.left / proportion).toFixed(2) + 'px'
+                    div.style.top = (item.top / proportion).toFixed(2) + 'px'
+                    div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
+                    div.style.height = (boxheight / proportion).toFixed(2) + 'px'
+                    div.style.border = `2px solid ${colorMap[item.name] || '#f00'}`
+                    divbox.appendChild(div)
+                  })
+                }
+              }
+              divbox.appendChild(img)
+              document.querySelector('#dialog_img_box').appendChild(divbox)
             }
           })
         }, 100)
@@ -169,10 +176,6 @@ export default {
               document.querySelector('#dialog_img_box').appendChild(img)
             }
           })
-          // const img = document.createElement('img')
-          // img.src = `${apiDomain}/static/${row.smallvideo}`
-          // img.style.width = '1000px'
-          // document.querySelector('#dialog_img_box').appendChild(img)
         }, 100)
       }
       this.dialogVisible = true
@@ -197,15 +200,5 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-#dialog_img_box {
-  position: relative;
-  overflow: hidden;
-}
-
-.dialogimg {
-  max-width: 1000px;
-}
-.pagination {
-  margin-top: 20px;
-}
+// #dialog_img_box {}
 </style>

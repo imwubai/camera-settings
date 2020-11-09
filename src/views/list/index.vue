@@ -25,7 +25,7 @@
       </el-table-column>
       <el-table-column prop="location" label="违法地点" />
       <el-table-column prop="time" label="采集时间" width="180" />
-      <el-table-column prop="filename" label="大场景" width="150">
+      <el-table-column prop="filename" label="一般场景" width="150">
         <template slot-scope="scope">
           <el-button
             type="text"

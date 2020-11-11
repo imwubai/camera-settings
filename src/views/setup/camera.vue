@@ -450,12 +450,9 @@ export default {
                 type: 'success'
               })
             })
-            .catch(() => {
+            .catch((e) => {
               this.saveLoading = false
-              this.$message({
-                message: '摄像机设置异常',
-                type: 'error'
-              })
+              this.$message.error(e.response.data || '摄像机设置异常')
             })
         }
       })

@@ -202,7 +202,7 @@ export default {
         this.$message.success('设置成功')
       }).catch((e) => {
         this.saveLoading = false
-        this.$message.error(e.response.data.returnMessage || '设置失败')
+        this.$message.error(e.response.data || '设置失败')
       })
     }
   }

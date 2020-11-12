@@ -149,7 +149,7 @@ export default {
     }
     const validateId = (rule, value, callback) => {
       /* eslint-disable eqeqeq */
-      if (/^[A-Za-z0-9]{1,50}$/.test(value)) {
+      if (/^[A-Za-z0-9_]{1,50}$/.test(value)) {
         callback()
       } else {
         callback(new Error('请输入英文和数字'))

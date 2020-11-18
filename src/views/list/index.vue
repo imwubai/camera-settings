@@ -142,14 +142,14 @@ export default {
               img.src = `${apiDomain}/static/tmpfs/${item.file}`
               img.style.width = '1000px'
               img.onload = e => {
+                const { naturalWidth, clientWidth } = e.path[0]
+                const proportion = (naturalWidth / clientWidth).toFixed(2)
                 if (item.unit) {
                   (item.unit || []).forEach(item => {
-                    const { naturalWidth, clientWidth } = e.path[0]
-                    const proportion = (naturalWidth / clientWidth).toFixed(2)
                     const boxWidth = item.right - item.left
                     const boxheight = item.bottom - item.top
                     const div = document.createElement('div')
-                    div.setAttribute('class', 'bigImgredBox')
+                    // div.setAttribute('class', 'bigImgredBox')
                     div.style.position = 'absolute'
                     div.style.left = (item.left / proportion).toFixed(2) + 'px'
                     div.style.top = (item.top / proportion).toFixed(2) + 'px'
@@ -158,6 +158,50 @@ export default {
                     div.style.border = `2px solid ${colorMap[item.name] || '#f00'}`
                     divbox.appendChild(div)
                   })
+                }
+                // 画 红灯线 停车线 红绿灯
+                const { overline, red_line_confirm, redline, signal_left, signal_right, signal_top, signal_bottom } = row
+                if (overline) {
+                  const div = document.createElement('div')
+                  div.style.position = 'absolute'
+                  div.style.left = '0px'
+                  div.style.top = (overline / proportion).toFixed(2) + 'px'
+                  div.style.width = '100%'
+                  div.style.height = '6px'
+                  div.style.backgroundColor = '#003366'
+                  divbox.appendChild(div)
+                }
+                if (red_line_confirm) {
+                  const div = document.createElement('div')
+                  div.style.position = 'absolute'
+                  div.style.left = '0px'
+                  div.style.top = (red_line_confirm / proportion).toFixed(2) + 'px'
+                  div.style.width = '100%'
+                  div.style.height = '6px'
+                  div.style.backgroundColor = '#003366'
+                  divbox.appendChild(div)
+                }
+                if (redline) {
+                  const div = document.createElement('div')
+                  div.style.position = 'absolute'
+                  div.style.left = '0px'
+                  div.style.top = (redline / proportion).toFixed(2) + 'px'
+                  div.style.width = '100%'
+                  div.style.height = '6px'
+                  div.style.backgroundColor = '#003366'
+                  divbox.appendChild(div)
+                }
+                if (signal_left) {
+                  const boxWidth = signal_right - signal_left
+                  const boxheight = signal_bottom - signal_top
+                  const div = document.createElement('div')
+                  div.style.position = 'absolute'
+                  div.style.left = (signal_left / proportion).toFixed(2) + 'px'
+                  div.style.top = (signal_top / proportion).toFixed(2) + 'px'
+                  div.style.width = (boxWidth / proportion).toFixed(2) + 'px'
+                  div.style.height = (boxheight / proportion).toFixed(2) + 'px'
+                  div.style.border = `2px solid #003366`
+                  divbox.appendChild(div)
                 }
               }
               divbox.appendChild(img)

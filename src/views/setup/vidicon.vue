@@ -557,12 +557,14 @@ export default {
         });
     }, // 测试摄像机方法
     onSubmit() {
+          // console.log(this.form)
+          // console.log(this.form.big_cam_name)
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.saveLoading = true;
           // 交通灯颜色值相加
 
-          if (this.form.big_cam_name === "") {
+          if (this.form.big_cam_name === null || this.form.big_cam_name === undefined) {
             var reqData = {
               ...this.form,
             };
@@ -654,6 +656,7 @@ export default {
       this.signal_color = [];
     }, // 红灯按钮方法
     dialogFormMiddle() {
+
       this.middle_sxj = true;
       this.big_sxj = false;
       this.small_sxj = false;

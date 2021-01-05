@@ -130,6 +130,8 @@ export default {
       }
     },
     viewImage(row, type) {
+      
+      console.log(row)
       if (type === 'big') {
         this.isLookBigImg = true
         const { colorMap } = this

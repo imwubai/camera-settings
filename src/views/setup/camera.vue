@@ -116,7 +116,7 @@
       :close-on-click-modal="false"
       width="1020px"
     >
-      <SetRedLight ref="setRedLightRef" :img-url="imgUrl" />
+      <SetRedLight ref="setRedLightRef" :img-url="imgUrl"   :img-data="imgData" />
       <span slot="footer">
         <el-button @click="redLightVisible = false">取消</el-button>
         <el-button type="primary" @click="saveSetRedLight">保存</el-button>
@@ -132,9 +132,10 @@ import SetRedLight from '@/components/SetRedLight'
 
 export default {
   components: {
-    SetRedLight
+     SetRedLight
   },
   data() {
+    
     const validateInput = (rule, value, callback) => {
       /* eslint-disable eqeqeq */
       if (value === 0) {
@@ -236,7 +237,8 @@ export default {
         big_cam_name: '',
         middle_cam_name: '',
         small_cam_name: ''
-      }
+      },
+          imgData:'' // 传给子组件的值
     }
   },
   mounted: function() {
@@ -276,6 +278,23 @@ export default {
             type: 'error'
           })
         })
+
+
+
+         axios
+            .post('/get_cam/' + this.positionNumber)
+            .then(res => {
+              console.log(res.data)
+              this.imgData = res.data
+           
+   
+            })
+            .catch((e) => {
+       
+              this.$message.error( '画线设置异常')
+            })
+
+
     },
     saveSetRedLight() {
       // 保存设置的红灯

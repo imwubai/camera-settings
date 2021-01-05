@@ -103,6 +103,12 @@ export const constantRoutes = [
         name: 'positionparam',
         component: () => import('@/views/setup/positionparam'),
         meta: { title: '方位参数设置' }
+      },
+      {
+        path: 'vidicon',
+        name: 'vidicon',
+        component: () => import('@/views/setup/vidicon'),
+        meta: { title: '摄像机设置' }
       }
       // {
       //   path: 'camera2',
